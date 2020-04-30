@@ -8,7 +8,7 @@ import boto3
 
 
 class Database:
-    """PostgreSQL Database class."""
+    """Project Database class."""
 
     def __init__(self, config):
         self.host = config.DATABASE_HOST
@@ -24,7 +24,7 @@ class Database:
         self.s3_conn = None
 
     def connect(self):
-        """Connect to a Postgres database."""
+        """Connect to Postgres database."""
         if self.conn is None:
             try:
                 self.conn = psycopg2.connect(host=self.host,
@@ -39,6 +39,7 @@ class Database:
                 logger.info('Database connection opened successfully.')
 
     def connect_s3_source(self):
+        """Connect to AWS s3 storage."""
         if self.s3_conn is None:
             try:
                 self.s3_conn = boto3.resource(
@@ -53,15 +54,13 @@ class Database:
             finally:
                 logger.info('Successfully established AWS s3 connection.')
 
-    def csv_to_table(self, filename, table_name, delimiter=','):
-        '''
-        This function uploads csv to a target table
-        '''
+    def csv_to_table(self, filename, table_name, sep=','):
+        '''This method uploads csv to a target table.'''
         try:
             cur = self.conn.cursor()
             obj = self.s3_conn.Object(self.bucket_name, filename)
             body = obj.get()['Body']
-            cur.copy_expert(f"copy {table_name} from STDIN CSV HEADER QUOTE '\"' DELIMITER AS '{delimiter}'", body)
+            cur.copy_expert(f"copy {table_name} from STDIN CSV HEADER QUOTE '\"' DELIMITER AS '{sep}'", body)
             cur.execute("commit;")
             logger.info(f"Loaded data into {table_name}")
         except Exception as e:
