@@ -1,18 +1,25 @@
 -- 
--- 2020-04-28 (Tue.) Haresh Bhatia
+-- 2020-04-28 (Tue.) Haresh Bhatia (HB)
 --
 -- This is DDL to create table STG_COVID_DLY_VIZ_CNTY_ALL.
 -- 
+--  ------------------------------------------------------------------------------
 -- 1. The file that loads this data is located at (HB's laptop) path 
 --    "C:\aData\clntsPrjcts\RgnlDtAlnce\dtaRsrcs\gitHubDta\covidDlyViz_cntyAll_pipDlm.csv"
 --   [This file was adapted from file "county_full.csv" that was downloaded from 
 --    "https://github.com/slu-openGIS/covid_daily_viz/tree/master/data/county". The file
 --    was further modified by replacing comma with "pipe" delimiter.]
--- 
--- 2. The first row of this (data) file has column names
+--  ------------------------------------------------------------------------------
+-- 1.a. The earlier data load by HB was a test. The actual data load would happen
+--      from S3 bucket file-path "s3://uw211dashboard-workbucket/covid_county_full.csv"
+--
+-- 2. This file was downloaded by Keenan Berry from ...
+--
+-- 3. The first row of this (data) file has column names
+--
 --
 CREATE TABLE 
-          IF NOT EXISTS  public.stg_covid_dly_viz_cnty_all
+          IF NOT EXISTS  uw211dashboard.public.stg_covid_dly_viz_cnty_all
 (report_date         DATE,
  geo_id              VARCHAR(10),
  county              VARCHAR(30),
@@ -29,8 +36,8 @@ CREATE TABLE
  PRIMARY KEY (report_date, geo_id, county, state_nm)
 );
 
-COMMENT ON TABLE stg_covid_dly_viz_cnty_all IS
-'Table contains the raw data from file ''county_full.csv'' at ''https://github.com/slu-openGIS/covid_daily_viz/tree/master/data/county''.'
+COMMENT ON TABLE uw211dashboard.public.stg_covid_dly_viz_cnty_all IS
+'Table contains the covid case data (like cases, mortality, and corresponding rates and averages). The raw data for this is in file "s3://uw211dashboard-workbucket/covid_county_full.csv" that was fetched from ... .'
 ;
 
 
