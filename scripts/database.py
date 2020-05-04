@@ -20,7 +20,7 @@ class Database:
         self.bucket_name = config.S3_BUCKET
         self.aws_access_key_id = config.AWS_ACCESS_KEY_ID
         self.aws_secret_access_key = config.AWS_SECRET_ACCESS_KEY
-        self.aws_region = config.AWS_REGION
+        #self.aws_region = config.AWS_REGION
         self.s3_conn = None
 
     def connect(self):
@@ -44,7 +44,7 @@ class Database:
             try:
                 self.s3_conn = boto3.resource(
                     's3',
-                    region_name=self.aws_region,
+                    #region_name=self.aws_region,
                     aws_access_key_id=self.aws_access_key_id,
                     aws_secret_access_key=self.aws_secret_access_key
                 )
@@ -54,13 +54,28 @@ class Database:
             finally:
                 logger.info('Successfully established AWS s3 connection.')
 
-    def csv_to_table(self, filename, table_name, sep=','):
-        '''This method uploads csv to a target table.'''
+    def csv_to_table(self, filename, table_name, sep=',', nullstr='NaN'):
+        '''
+        This method uploads csv to a target table.
+        
+        Parameters
+        ----------
+        filename : str 
+            file name with extension
+        table_name : str
+            name of PostgreSQL table in DB (must be truncated)
+        sep : str
+            delimiter; default is comma
+        nullstr : str
+            string which DB should interpret as NULL values
+
+        '''
         try:
             cur = self.conn.cursor()
             obj = self.s3_conn.Object(self.bucket_name, filename)
             body = obj.get()['Body']
-            cur.copy_expert(f"copy {table_name} from STDIN CSV HEADER QUOTE '\"' DELIMITER AS '{sep}'", body)
+            sql = f"copy {table_name} from STDIN CSV HEADER QUOTE '\"' DELIMITER AS '{sep}' NULL '{nullstr}'"
+            cur.copy_expert(sql, body)
             cur.execute("commit;")
             logger.info(f"Loaded data into {table_name}")
         except Exception as e:

@@ -1,3 +1,4 @@
 test.py
 .env
-scripts/__pychache__
+scripts/__pycache__
+resources/connections.json
