@@ -14,7 +14,7 @@ class Scraper:
         self.bucket_name = config.S3_BUCKET
         self.aws_access_key_id = config.AWS_ACCESS_KEY_ID
         self.aws_secret_access_key = config.AWS_SECRET_ACCESS_KEY
-        self.aws_region = config.AWS_REGION
+        #self.aws_region = config.AWS_REGION
         self.s3_conn = None  # aws s3 connection
         self.api_token = config.API_TOKEN
         self.api_user_email = config.API_USER_EMAIL
@@ -26,7 +26,7 @@ class Scraper:
             try:
                 self.s3_conn = boto3.resource(
                     's3',
-                    region_name=self.aws_region,
+                    #region_name=self.aws_region,
                     aws_access_key_id=self.aws_access_key_id,
                     aws_secret_access_key=self.aws_secret_access_key
                 )
@@ -36,7 +36,7 @@ class Scraper:
             finally:
                 logger.info('Successfully established AWS s3 connection.')
 
-    def url_to_s3(self, filename=None, filters=None):
+    def url_to_s3(self, filename=None, filters=None, nullstr='NaN'):
         """
         Upload file from web to s3 storage.
 
@@ -49,6 +49,9 @@ class Scraper:
                 name of column to filter
             value: list
                 list of accepted values for column
+        nullstr : str
+            used only when filtering
+            string assigned to null values when writing csv file
 
         """
         if filename is None:
@@ -66,7 +69,7 @@ class Scraper:
                 df = df[df[key].isin(values)]
             # write df to csv
             csv_buf = StringIO()
-            df.to_csv(csv_buf, header=True, index=False)
+            df.to_csv(csv_buf, header=True, index=False, na_rep=nullstr)
             csv_buf.seek(0)
             content = csv_buf.getvalue()
         
