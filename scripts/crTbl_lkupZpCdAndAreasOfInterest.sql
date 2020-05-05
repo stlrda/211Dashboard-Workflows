@@ -44,7 +44,7 @@ CREATE TABLE
  county             VARCHAR(30)
 );
 
-COMMENT ON TABLE stg_covid_dly_viz_cnty_all IS
+COMMENT ON TABLE uw211dashboard.public.lkup_areas_of_intr_geo_scope IS
 'Table contains the raw data for the areas of interest. The areas of interest are those listed in the RDA document titled "St. Louis Region / Missouri Community Impact Dashboard" under the section "Geographic Scope". This table shall be used to aggregate data based on the 3 areas of interest - viz. Core Region, Metro Area, and MO-state. as stated in the document.
 
 The data for this table was manually created using information from the metro area map provided by the RDA at "https://helpingpeople.org/who-we-are/our-reach/" (for metro area counties) and table that has daily covid counts (got distinct county names for Missouri State).'
