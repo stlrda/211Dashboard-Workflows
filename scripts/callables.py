@@ -38,3 +38,4 @@ def load_file(**kwargs):
                     table_name=kwargs['table_name'],
                     sep=kwargs['sep'],
                     nullstr=kwargs['nullstr'])
+    db.close()

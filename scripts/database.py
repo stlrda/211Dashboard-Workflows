@@ -81,3 +81,11 @@ class Database:
         except Exception as e:
             logger.error(e)
             sys.exit()
+
+    def close(self):
+        ''' Close the database client connection. '''
+        if self.conn is None:
+            logger.info('No connection to close.')
+        else:
+            self.conn.close()
+            logger.info('Postgres connection closed.')
