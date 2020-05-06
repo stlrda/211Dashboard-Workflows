@@ -6,9 +6,14 @@
 -- 1. This table contains data from the S3 file 
 --    "s3://uw211dashboard-workbucket/stl_regional_funding_cleaned.csv"
 -- 
--- 2. This file was downloaded by Keenan Berry from ... .
+-- 2. This file was provided to Keenan Berry from Paul Sorenson of the STL RDA.
+--    The original file ("STL_Regional_Funding.csv") was cleaned up with a Python script found in the project's "scripts" directory
+--      - Cleaning File Name: "funding_formatter.py"
+--      - File Output: "stl_regional_funding_cleaned.csv"
 -- 
 -- 3. The first row of this file data has column-names.
+--    File Delimiter: "|"
+--    Null value: ""
 --
 CREATE TABLE 
           IF NOT EXISTS  uw211dashboard.public.cre_stl_rgnl_fndng_clnd

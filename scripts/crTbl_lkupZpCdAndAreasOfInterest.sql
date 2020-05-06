@@ -8,10 +8,14 @@
 -- 1. This table contains the lookup for County along with underling zip-codes
 --    and cities.
 -- 2. The data for this table comes from the S3 bucket file-path
---    "s3://uw211dashboard-workbucket/mo_county_zip_city.csvø"
--- 3. This file was downloaded by Keenan Berry from ...
+--    "s3://uw211dashboard-workbucket/mo_county_zip_city.csv"
+-- 3. This file was downloaded by Keenan Berry from "https://data.mo.gov/api/views/im7g-fucq/rows.csv?accessType=DOWNLOAD"
+--    The data can also be accessed via API call:
+--      - API Endpoint: "https://data.mo.gov/resource/im7g-fucq.json"
+--      - Dataset name: "im7g-fucq"
 --
 -- 4. The first row of this (data) file has column names
+--    File delimiter: ","
 --  
 --
 CREATE TABLE 
@@ -22,10 +26,10 @@ CREATE TABLE
 );
 
 COMMENT ON TABLE stg_covid_dly_viz_cnty_all IS
-'Table contains the raw data from file that was downloaded from "https://data.mo.gov/Geography/Missouri-Zip-Codes-by-County-City/im7g-fucq".'
+'Table contains the raw data from file that was downloaded from "https://data.mo.gov/resource/im7g-fucq.json".'
 ;
 
--- B. LKUP_COUNTY_ZIP_CITY.
+-- B. LKUP_AREAS_OF_INTR_GEO_SCOPE.
 -- 
 -- 1. This DDL creates table LKUP_AREAS_OF_INTR_GEO_SCOPE.
 -- 2. The data for this was manually created using the following

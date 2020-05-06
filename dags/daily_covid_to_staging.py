@@ -6,7 +6,7 @@ from airflow.operators.python_operator import PythonOperator
 from airflow.operators.postgres_operator import PostgresOperator
 
 # add parent folder
-sys.path.append('..')
+sys.path.append('.')
 from scripts.callables import scrape_file, load_file
 
 '''
@@ -27,7 +27,8 @@ args = {
 
 dag = DAG(
     dag_id='daily_covid_to_staging',
-    schedule_interval='@daily', # is this correct?
+    schedule_interval='@daily',
+    template_searchpath=f'{AIRFLOW_HOME}/scripts/',
     default_args=args
 )
 
@@ -118,8 +119,7 @@ load_covid_zip_stl_city_staging = PythonOperator(
     },
     dag=dag)
 
-[scrape_covid_county_full, 
- scrape_covid_zip_stl_city, 
- scrape_covid_zip_stl_county] >> [load_covid_county_full_staging,
-                                  load_covid_zip_stl_city_staging,
-                                  load_covid_zip_stl_county_staging]
+chain(
+    [scrape_covid_county_full, scrape_covid_zip_stl_city, scrape_covid_zip_stl_county],
+    [load_covid_county_full_staging, load_covid_zip_stl_city_staging, load_covid_zip_stl_county_staging]
+)

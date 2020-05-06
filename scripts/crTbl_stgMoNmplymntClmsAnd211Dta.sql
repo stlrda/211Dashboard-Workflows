@@ -11,9 +11,13 @@
 -- 1. This table gest data from the file in AWS S3 bucket with the path 
 --    "s3://uw211dashboard-workbucket/mo_unemployment_claims.csv"
 --
--- 2. This file was downloaded by Keenan Berry from ...
+-- 2. This file was downloaded by Keenan Berry from "https://data.mo.gov/api/views/qet9-8yam/rows.csv?accessType=DOWNLOAD"
+--    This data can also be accessed via API call via data.mo.gov:
+--      - API Endpoint: "https://data.mo.gov/resource/qet9-8yam.json"
+--      - Dataset Name: "qet9-8yam"
 -- 
 -- 3. The first row of this (data) file has column names
+--    File delimiter: ","
 --
 CREATE TABLE 
           IF NOT EXISTS  uw211dashboard.public.stg_mo_unemployment_clms
@@ -24,7 +28,7 @@ CREATE TABLE
 );
 
 COMMENT ON TABLE uw211dashboard.public.stg_mo_unemployment_clms IS
-'This table contains unemployment data from file "s3://uw211dashboard-workbucket/mo_unemployment_claims.csv" that was fetched from ... .'
+'This table contains unemployment data from file "s3://uw211dashboard-workbucket/mo_unemployment_claims.csv" that was fetched from "https://data.mo.gov/resource/qet9-8yam.json".'
 ;
 
 -------------------------
@@ -34,11 +38,13 @@ COMMENT ON TABLE uw211dashboard.public.stg_mo_unemployment_clms IS
 -- 1. This table gest data from the file in AWS S3 bucket with the path 
 --    "s3://uw211dashboard-workbucket/..."
 --    [INitially only sample file "sample_211_mo_data_20200330_20200403.csv" 
---     was used that shall be finalize dlater.]
+--     was used that shall be finalized later.]
 --
 -- 2. This file was downloaded by Keenan Berry from ...
+--    The sample file was provided to Keenan Berry by Paul Sorenson with STL RDA
 -- 
 -- 3. The first row of this (data) file has column names
+--    File delimiter: ","
 --
 CREATE TABLE 
           IF NOT EXISTS  uw211dashboard.public.stg_mo_211_data
