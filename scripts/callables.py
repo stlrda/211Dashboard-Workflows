@@ -14,6 +14,18 @@ def scrape_file(**kwargs):
                 filters=kwargs['filters'],
                 nullstr=kwargs['nullstr'])
 
+
+def scrape_api(**kwargs):
+    '''
+    Description here
+    '''
+    s = Scraper(kwargs['url'], Config)
+    s.connect_s3_sink()
+    s.api_to_s3(filename=kwargs['filename'],
+                table_name=kwargs['table_name'], 
+                limit=kwargs['limit'])
+
+
 def load_file(**kwargs):
     '''
     Description here

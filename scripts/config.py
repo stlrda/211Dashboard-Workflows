@@ -9,21 +9,22 @@ import json
 class Config:
     """Project Configuration class."""
     # Database config
-    DATABASE_CONN = BaseHook.get_connection('postgres')
+    DATABASE_CONN = BaseHook.get_connection('postgres_default')
     DATABASE_HOST = DATABASE_CONN.host
     DATABASE_USERNAME = DATABASE_CONN.login
     DATABASE_PASSWORD = DATABASE_CONN.password
     DATABASE_PORT = DATABASE_CONN.port
-    DATABASE_NAME = DATABASE_CONN.conn_id
+    DATABASE_NAME = DATABASE_CONN.schema
 
     # AWS S3 config
-    S3_CONN = BaseHook.get_connection('s3-bucket')
-    S3_BUCKET = S3_CONN.conn_id
-    AWS_ACCESS_KEY_ID = json.loads(S3_CONN.extra)['aws_access_key_id']
-    AWS_SECRET_ACCESS_KEY = json.loads(S3_CONN.extra)['aws_secret_access_key']
+    S3_CONN = BaseHook.get_connection('aws_s3')
+    S3_BUCKET = S3_CONN.schema
+    AWS_ACCESS_KEY_ID = S3_CONN.login
+    AWS_SECRET_ACCESS_KEY = S3_CONN.password
+    AWS_REGION_NAME = json.loads(S3_CONN.extra)['region_name']
 
     # MO Data API config
-    MO_API_CONN = BaseHook.get_connection('mo-api')
+    MO_API_CONN = BaseHook.get_connection('mo_api')
     API_TOKEN = json.loads(MO_API_CONN.extra)['token']
     API_HOST = MO_API_CONN.host
     API_USER_EMAIL = MO_API_CONN.login

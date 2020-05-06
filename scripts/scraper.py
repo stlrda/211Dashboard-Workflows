@@ -111,11 +111,3 @@ class Scraper:
         obj = self.s3_conn.Object(self.bucket_name, filename)
         obj.put(Body=content)
         logger.info(f'{filename} uploaded to s3 bucket.')
-
-
-        
-        
-
-
-
-    

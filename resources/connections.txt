@@ -1,0 +1,26 @@
+#connections.json is a file with the following structure
+#each json item represents an airflow connection class
+#examples are shown below 
+[
+    {
+        "Conn Id": "my_s3_conn",
+        "Conn Type": "S3",
+        "Host": "",
+        "Schema": "",
+        "Login": "",
+        "Password": "",
+        "Port": "",
+        "Extra": {"aws_access_key_id":"", "aws_secret_access_key": ""}
+    },
+
+    {
+        "Conn Id": "postgres_default",
+        "Conn Type": "postgres",
+        "Host": "",
+        "Schema": "",
+        "Login": "",
+        "Password": "",
+        "Port": "",
+        "Extra": ""
+    }
+]
