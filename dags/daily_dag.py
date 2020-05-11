@@ -4,7 +4,7 @@ from airflow.models import DAG
 #from airflow.operators.bash_operator import BashOperator
 from airflow.operators.python_operator import PythonOperator
 from airflow.operators.postgres_operator import PostgresOperator
-from airflow.models.baseoperator import chain
+from airflow.utils.helpers import chain
 
 # add parent folder
 sys.path.append('.')
@@ -161,7 +161,7 @@ load_211_staging = PythonOperator(
         'filename': 'sample_211_mo_data.csv',
         'table_name': 'stg_mo_211_data',
         'sep': ',',
-        'nullstr': 'NULL'
+        'nullstr': ''
     },
     dag=dag)
 
@@ -171,17 +171,17 @@ load_211_staging = PythonOperator(
 
 covid_staging_to_core = PostgresOperator(
     task_id='covid_staging_to_core', 
-    sql='cvdDtaMgrtn_dly.sql', 
+    sql='dtaMgrtn_covid_dly.sql', 
     dag=dag) 
 
 
 #####################################################################
 ''' Move 211 data from staging to core table. '''
 
-211_staging_to_core = PostgresOperator(
-    task_id='211_staging_to_core', 
-    sql='211DtaMgrtn_dly.sql', #TODO
-    dag=dag) 
+# 211_staging_to_core = PostgresOperator(
+#     task_id='211_staging_to_core', 
+#     sql='dtaMgrtn_211_dly.sql', #TODO
+#     dag=dag) 
 
 
 #####################################################################

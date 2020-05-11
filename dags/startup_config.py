@@ -5,9 +5,9 @@ from airflow.operators.bash_operator import BashOperator
 from airflow.operators.python_operator import PythonOperator
 from airflow.operators.postgres_operator import PostgresOperator
 
-sys.path.append(".")
+sys.path.append('.')
 from scripts.create_connections import create_connections
-from scripts.callables import scrape_file, load_file, scrape_api
+#from scripts.callables import scrape_file, load_file, scrape_api
 
 
 '''
@@ -54,12 +54,15 @@ upon infrastructure initiation.
 '''
 #install_requirements = BashOperator(task_id='install_requirements', bash_command='pip install -r $AIRFLOW_HOME/requirements.txt', dag=dag)
 
+def WhereAmI():
+    print('This function was ran from ' + str(os.getcwd()))
+
 #TODO remove "create_connections" operator for production environment
 # This operator should already exist in the Airflow Admin repository
 create_connections = PythonOperator(task_id='create_connections', python_callable=create_connections, dag=dag)
 
 #TODO add other startup configurations
-scripts/crTbl_creRstOthrs.sql
+#scripts/crTbl_creRstOthrs.sql
 
 create_staging_unemployment_211 = PostgresOperator(task_id='create_staging_unemployment_211', sql='crTbl_stgMoNmplymntClmsAnd211Dta.sql', dag=dag) 
 create_staging_covid_zip = PostgresOperator(task_id='create_staging_covid_zip', sql='crTbl_stgCovidUpdtZpCtyAndCnty.sql', dag=dag) 

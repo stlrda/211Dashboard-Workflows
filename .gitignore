@@ -5,6 +5,7 @@ scripts/__pycache__
 # testing scripts
 test.py
 scripts/funding_formatter.py
+cleanup.sql
 
 # secrets configuration and admin setup
 resources/connections.json
