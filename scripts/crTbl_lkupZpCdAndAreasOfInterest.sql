@@ -25,7 +25,7 @@ CREATE TABLE
  city           VARCHAR(30)
 );
 
-COMMENT ON TABLE stg_covid_dly_viz_cnty_all IS
+COMMENT ON TABLE uw211dashboard.public.lkup_county_zip_city IS
 'Table contains the raw data from file that was downloaded from "https://data.mo.gov/resource/im7g-fucq.json".'
 ;
 

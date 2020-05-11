@@ -190,7 +190,7 @@ covid_staging_to_core = PostgresOperator(
 
 update_daily_timestamp = PostgresOperator(
     task_id='update_daily_timestamp', 
-    sql='TmStmpUpdt_dly.sql', #TODO
+    sql='setLstSccssflRnDt_dlyAll.sql',
     dag=dag) 
 
 
@@ -202,6 +202,7 @@ chain(
     truncate_daily_staging_tables,
     [load_covid_county_full_staging, load_covid_zip_stl_city_staging, load_covid_zip_stl_county_staging],
     load_211_staging,
-    [covid_staging_to_core, 211_staging_to_core],
+    covid_staging_to_core, #TODO remove this once 211 staging-->core is ready
+    #[covid_staging_to_core, 211_staging_to_core],
     update_daily_timestamp
 )

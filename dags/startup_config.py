@@ -7,6 +7,7 @@ from airflow.operators.postgres_operator import PostgresOperator
 
 sys.path.append(".")
 from scripts.create_connections import create_connections
+from scripts.callables import scrape_file, load_file, scrape_api
 
 
 '''
@@ -58,15 +59,19 @@ upon infrastructure initiation.
 create_connections = PythonOperator(task_id='create_connections', python_callable=create_connections, dag=dag)
 
 #TODO add other startup configurations
+scripts/crTbl_creRstOthrs.sql
+
 create_staging_unemployment_211 = PostgresOperator(task_id='create_staging_unemployment_211', sql='crTbl_stgMoNmplymntClmsAnd211Dta.sql', dag=dag) 
 create_staging_covid_zip = PostgresOperator(task_id='create_staging_covid_zip', sql='crTbl_stgCovidUpdtZpCtyAndCnty.sql', dag=dag) 
 create_staging_covid_full = PostgresOperator(task_id='create_staging_covid_full', sql='crTbl_stgCovidDlyVizByCntyAll.sql', dag=dag)
 create_lookup_tables = PostgresOperator(task_id='create_lookup_tables', sql='crTbl_lkupZpCdAndAreasOfInterest.sql', dag=dag)
 create_static_regional_funding = PostgresOperator(task_id='create_static_regional_funding', sql='crTbl_creStlRgnlFndngClnd.sql', dag=dag)
+create_success_date_and_covid_core = PostgresOperator(task_id='create_success_date_and_covid_core', sql='crTbl_creRstOthrs.sql', dag=dag)
 
 # Utilize "chain" function for more complex relationships among dag operators
 create_connections >> [create_staging_unemployment_211,
                        create_staging_covid_zip,
                        create_staging_covid_full,
                        create_lookup_tables,
-                       create_static_regional_funding]
+                       create_static_regional_funding,
+                       create_success_date_and_covid_core]
