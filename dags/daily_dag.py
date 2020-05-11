@@ -4,6 +4,7 @@ from airflow.models import DAG
 #from airflow.operators.bash_operator import BashOperator
 from airflow.operators.python_operator import PythonOperator
 from airflow.operators.postgres_operator import PostgresOperator
+from airflow.models.baseoperator import chain
 
 # add parent folder
 sys.path.append('.')
@@ -15,20 +16,25 @@ Daily DAG
 1. Scrape COVID-19 data
     a. Data sourced from Chris Prener's github at
        "https://github.com/slu-openGIS/covid_daily_viz/tree/master/data"
-2. Load COVID-19 data to staging tables
-3. Load 211 data to staging tables
+2. Truncate staging tables
+3. Load COVID-19 data to staging tables
+4. Load 211 data to staging tables
     a. NOTE this data will eventually have to be scraped (ideally daily)
        however for now we will just use a static file in the s3 bucket
        "sample_211_mo_data_ ... .csv"
-4. Move data from staging to core tables
+5. Move data from staging to core tables
     a. Apply appropriate filters and aggregations
-5. Truncate staging tables
+6. Update timestamp
 
 '''
 
+#NOTE: May not need this variable for production environment.
+# AIRFLOW_HOME required for running scripts with Docker config.
+AIRFLOW_HOME = os.environ['AIRFLOW_HOME']
+
 args = {
     'owner': '211dashboard',
-    'start_date': datetime(2020, 5, 4),  # change this
+    'start_date': datetime(2020, 5, 10),  # change this
     'concurrency': 1,
     'retries': 0,
     'depends_on_past': False,
@@ -36,14 +42,14 @@ args = {
 }
 
 dag = DAG(
-    dag_id='daily_covid_to_staging',
+    dag_id='daily',
     schedule_interval='@daily',
     template_searchpath=f'{AIRFLOW_HOME}/scripts/',
     default_args=args
 )
 
 #####################################################################
-# define covid_county_full variables and operators
+''' Define covid_county_full variables and operators. '''
 
 covid_county_full_url = 'https://raw.githubusercontent.com/slu-openGIS/covid_daily_viz/master/data/county/county_full.csv'
 covid_county_full_file = 'covid_county_full.csv'
@@ -72,7 +78,7 @@ load_covid_county_full_staging = PythonOperator(
     dag=dag)
 
 #####################################################################
-# define covid_zip_stl_county variables and operators
+''' Define covid_zip_stl_county variables and operators. '''
 
 covid_zip_stl_county_url = 'https://raw.githubusercontent.com/slu-openGIS/covid_daily_viz/master/data/zip/zip_stl_county.csv'
 covid_zip_stl_county_file = 'covid_zip_stl_county.csv'
@@ -101,7 +107,7 @@ load_covid_zip_stl_county_staging = PythonOperator(
     dag=dag)
 
 #####################################################################
-# define covid_zip_stl_city variables and operators
+''' Define covid_zip_stl_city variables and operators. '''
 
 covid_zip_stl_city_url = 'https://raw.githubusercontent.com/slu-openGIS/covid_daily_viz/master/data/zip/zip_stl_city.csv'
 covid_zip_stl_city_file = 'covid_zip_stl_city.csv'
@@ -129,9 +135,73 @@ load_covid_zip_stl_city_staging = PythonOperator(
     },
     dag=dag)
 
+
 #####################################################################
-# Set relationships among Operators in Daily DAG
+''' Truncate daily staging tables for loading. '''
+
+truncate_daily_staging_tables = PostgresOperator(
+    task_id='truncate_daily_staging_tables', 
+    sql='trnctTbls_dly.sql', 
+    dag=dag) 
+
+
+#####################################################################
+''' Load 211 daily staging tables from S3
+    filename: "sample_211_mo_data.csv" 
+
+    #NOTE this step will likely change once UnitedWay configures their
+    211 data API.
+
+'''
+
+load_211_staging = PythonOperator(
+    task_id='load_211_staging',
+    python_callable=load_file,
+    op_kwargs={
+        'filename': 'sample_211_mo_data.csv',
+        'table_name': 'stg_mo_211_data',
+        'sep': ',',
+        'nullstr': 'NULL'
+    },
+    dag=dag)
+
+
+#####################################################################
+''' Move COVID-19 data from staging tables to core table. '''
+
+covid_staging_to_core = PostgresOperator(
+    task_id='covid_staging_to_core', 
+    sql='cvdDtaMgrtn_dly.sql', 
+    dag=dag) 
+
+
+#####################################################################
+''' Move 211 data from staging to core table. '''
+
+211_staging_to_core = PostgresOperator(
+    task_id='211_staging_to_core', 
+    sql='211DtaMgrtn_dly.sql', #TODO
+    dag=dag) 
+
+
+#####################################################################
+''' Updates "DLY_ALL" key in "cre_last_success_run_dt" upon 
+    successful execution of daily dag '''
+
+update_daily_timestamp = PostgresOperator(
+    task_id='update_daily_timestamp', 
+    sql='TmStmpUpdt_dly.sql', #TODO
+    dag=dag) 
+
+
+#####################################################################
+''' Set relationships among Operators in Daily DAG. '''
+
 chain(
     [scrape_covid_county_full, scrape_covid_zip_stl_city, scrape_covid_zip_stl_county],
-    [load_covid_county_full_staging, load_covid_zip_stl_city_staging, load_covid_zip_stl_county_staging]
+    truncate_daily_staging_tables,
+    [load_covid_county_full_staging, load_covid_zip_stl_city_staging, load_covid_zip_stl_county_staging],
+    load_211_staging,
+    [covid_staging_to_core, 211_staging_to_core],
+    update_daily_timestamp
 )
