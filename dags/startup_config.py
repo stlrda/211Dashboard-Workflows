@@ -38,7 +38,7 @@ args = {
 }
 
 dag = DAG(
-    dag_id='startup_config',
+    dag_id='startup',
     schedule_interval='@once',
     template_searchpath=f'{AIRFLOW_HOME}/scripts/',
     default_args=args
