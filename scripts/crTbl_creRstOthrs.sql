@@ -62,7 +62,8 @@ VALUES ('DLY_ALL', '1900-01-01')
 --    limited only to CASE COUNT and RATE. [These data may get expanded to other 
 --    attributes covered in STG_COVID_DLY_VIZ_CNTY_ALL.]
 -- 
--- 4. These tables get daily data feeds from the source (staging) tables.
+-- 4. This table gets daily data feeds from the corresponding source (staging)
+--    tables.
 -- 
 --
 CREATE TABLE 
@@ -84,7 +85,7 @@ CREATE TABLE
  case_fatality_rate  NUMERIC(12,6),
  created_tsp         TIMESTAMPTZ     NOT NULL DEFAULT now(),
  last_update_tsp     TIMESTAMPTZ     NOT NULL DEFAULT now(),
- PRIMARY KEY (data_source, report_date, state_nm, county_nm, geo_id)
+ PRIMARY KEY (data_source, report_date, state_nm, county_nm, geo_id, zip_cd)
 );
 
 
@@ -98,4 +99,39 @@ The data in STG_COVID_ZIP_STL_CounTY and ..._CiTY are (at least for present) lim
 These tables get daily data feeds from the source (staging) tables.'
 ;
 
+/* This is INCOMPLETE still...
+-------------------------------------------------------------------------------
+--
+-- C. Table CRE_MO_211_DATA
+--
+-- 1. Table CRE_MO_211_DATA contains data for the 211 call-support related
+--    attributes along with CALL_DT (call category, sub-category, census_cd, etc.)
+-- 
+-- 2. The data for this table were gathered from the corresponding staging table
+--    STG_MO_211_DATA.
+-- 
+-- 3. This table gets daily data feeds from the corresponding source (staging)
+--    tables.
+-- 
+-- 
+--
+CREATE TABLE 
+          IF NOT EXISTS  uw211dashboard.public.cre_211_data
+(call_date         DATE,
+ state_nm          VARCHAR(30),
+ county_nm         VARCHAR(30),
+ zip_cd            VARCHAR(10),
+ category          VARCHAR(200),
+ sub_category      VARCHAR(200),
+ call_counts       INTEGER,
+ created_tsp       TIMESTAMPTZ     NOT NULL DEFAULT now(),
+ last_update_tsp   TIMESTAMPTZ     NOT NULL DEFAULT now(),
+ PRIMARY KEY (call_date, state_nm, county_nm, zip_cd)
+);
+
+
+COMMENT ON TABLE uw211dashboard.public.cre_mo_211_data IS
+'Table CRE_MO_211_DATA contains data for the 211 calls.'
+;
+*/
 
