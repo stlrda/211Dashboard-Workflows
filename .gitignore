@@ -6,6 +6,7 @@ scripts/__pycache__
 test.py
 scripts/funding_formatter.py
 cleanup.sql
+dags/connect.py
 
 # secrets configuration and admin setup
 resources/connections.json

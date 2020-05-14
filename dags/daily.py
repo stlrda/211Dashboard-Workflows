@@ -9,6 +9,8 @@ from airflow.utils.helpers import chain
 # add parent folder
 sys.path.append('.')
 from scripts.callables import scrape_file, load_file
+#TODO for production environment change module paths -- such as...
+#from dags.211Dashboard.scripts.callables import scrape_file, load_file, scrape_api
 
 '''
 Daily DAG
@@ -28,13 +30,14 @@ Daily DAG
 
 '''
 
-#NOTE: May not need this variable for production environment.
-# AIRFLOW_HOME required for running scripts with Docker config.
+COVID_BASE_URL = 'https://raw.githubusercontent.com/slu-openGIS/covid_daily_viz/master/data'
 AIRFLOW_HOME = os.environ['AIRFLOW_HOME']
+#NOTE: AIRFLOW_HOME variable will be different in production environment
+
 
 args = {
     'owner': '211dashboard',
-    'start_date': datetime(2020, 5, 10),  # change this
+    'start_date': datetime(2020, 5, 12),  # change this
     'concurrency': 1,
     'retries': 0,
     'depends_on_past': False,
@@ -44,14 +47,14 @@ args = {
 dag = DAG(
     dag_id='daily',
     schedule_interval='@daily',
-    template_searchpath=f'{AIRFLOW_HOME}/scripts/',
+    template_searchpath=f'{AIRFLOW_HOME}/scripts/', #TODO production_path = AIRFLOW_HOME/dags/211dashboard/scripts/
     default_args=args
 )
 
 #####################################################################
 ''' Define covid_county_full variables and operators. '''
 
-covid_county_full_url = 'https://raw.githubusercontent.com/slu-openGIS/covid_daily_viz/master/data/county/county_full.csv'
+covid_county_full_url = f'{COVID_BASE_URL}/county/county_full.csv'
 covid_county_full_file = 'covid_county_full.csv'
 covid_county_full_table = 'stg_covid_dly_viz_cnty_all'
 
@@ -80,7 +83,7 @@ load_covid_county_full_staging = PythonOperator(
 #####################################################################
 ''' Define covid_zip_stl_county variables and operators. '''
 
-covid_zip_stl_county_url = 'https://raw.githubusercontent.com/slu-openGIS/covid_daily_viz/master/data/zip/zip_stl_county.csv'
+covid_zip_stl_county_url = f'{COVID_BASE_URL}/zip/zip_stl_county.csv'
 covid_zip_stl_county_file = 'covid_zip_stl_county.csv'
 covid_zip_stl_county_table = 'stg_covid_zip_stl_county'
 
@@ -109,7 +112,7 @@ load_covid_zip_stl_county_staging = PythonOperator(
 #####################################################################
 ''' Define covid_zip_stl_city variables and operators. '''
 
-covid_zip_stl_city_url = 'https://raw.githubusercontent.com/slu-openGIS/covid_daily_viz/master/data/zip/zip_stl_city.csv'
+covid_zip_stl_city_url = f'{COVID_BASE_URL}/zip/zip_stl_city.csv'
 covid_zip_stl_city_file = 'covid_zip_stl_city.csv'
 covid_zip_stl_city_table = 'stg_covid_zip_stl_city'
 
@@ -150,7 +153,7 @@ truncate_daily_staging_tables = PostgresOperator(
     filename: "sample_211_mo_data.csv" 
 
     #NOTE this step will likely change once UnitedWay configures their
-    211 data API.
+    211 data API/data source.
 
 '''
 
@@ -161,7 +164,7 @@ load_211_staging = PythonOperator(
         'filename': 'sample_211_mo_data.csv',
         'table_name': 'stg_mo_211_data',
         'sep': ',',
-        'nullstr': ''
+        'nullstr': 'null'
     },
     dag=dag)
 

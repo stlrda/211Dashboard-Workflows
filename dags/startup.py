@@ -4,10 +4,12 @@ from airflow.models import DAG
 from airflow.operators.bash_operator import BashOperator
 from airflow.operators.python_operator import PythonOperator
 from airflow.operators.postgres_operator import PostgresOperator
+from airflow.utils.helpers import chain
 
 sys.path.append('.')
-from scripts.create_connections import create_connections
-#from scripts.callables import scrape_file, load_file, scrape_api
+from scripts.callables import scrape_file, load_file, scrape_api
+#TODO for production environment change module paths -- such as...
+#from dags.211Dashboard.scripts.callables import scrape_file, load_file, scrape_api
 
 
 '''
@@ -21,17 +23,17 @@ Startup Configuration DAG
 3. Populate older unemployment data (e.g. 2019)
     a. For both MO and IL
 4. Populate "static" core tables
-    a. Census and Funding data
+    a. Census and Funding data (will also be included in "manual" dag)
+    b. Lookup tables - ideally won't change over the course of the project
 
 '''
 
-#NOTE: May not need this variable for production environment.
-# AIRFLOW_HOME required for running scripts with Docker config.
 AIRFLOW_HOME = os.environ['AIRFLOW_HOME']
+#NOTE: AIRFLOW_HOME variable will be different in production environment
 
 args = {
     'owner': '211dashboard',
-    'start_date': datetime(2020, 5, 4),
+    'start_date': datetime(2020, 5, 12),
     'concurrency': 1,
     'retries': 0,
     'depends_on_past': False,
@@ -41,40 +43,59 @@ args = {
 dag = DAG(
     dag_id='startup',
     schedule_interval='@once',
-    template_searchpath=f'{AIRFLOW_HOME}/scripts/',
+    template_searchpath=f'{AIRFLOW_HOME}/scripts/', #TODO production_path = AIRFLOW_HOME/dags/211dashboard/scripts/
     default_args=args
 )
-
-'''
-Installing requirements through BashOperator does not produce desired results
-when running airflow via docker.
-Best practice would be to install these requirements from requirements.txt file
-upon infrastructure initiation.
-#NOTE may modify this config.
-'''
-#install_requirements = BashOperator(task_id='install_requirements', bash_command='pip install -r $AIRFLOW_HOME/requirements.txt', dag=dag)
-
-def WhereAmI():
-    print('This function was ran from ' + str(os.getcwd()))
-
-#TODO remove "create_connections" operator for production environment
-# This operator should already exist in the Airflow Admin repository
-create_connections = PythonOperator(task_id='create_connections', python_callable=create_connections, dag=dag)
-
-#TODO add other startup configurations
-#scripts/crTbl_creRstOthrs.sql
 
 create_staging_unemployment_211 = PostgresOperator(task_id='create_staging_unemployment_211', sql='crTbl_stgMoNmplymntClmsAnd211Dta.sql', dag=dag) 
 create_staging_covid_zip = PostgresOperator(task_id='create_staging_covid_zip', sql='crTbl_stgCovidUpdtZpCtyAndCnty.sql', dag=dag) 
 create_staging_covid_full = PostgresOperator(task_id='create_staging_covid_full', sql='crTbl_stgCovidDlyVizByCntyAll.sql', dag=dag)
-create_lookup_tables = PostgresOperator(task_id='create_lookup_tables', sql='crTbl_lkupZpCdAndAreasOfInterest.sql', dag=dag)
+#TODO create file with areas of interest for loading on startup (put file in s3)
+create_lookup_interest_areas = PostgresOperator(task_id='create_lookup_interest_areas', sql='crTbl_lkupZpCdAndAreasOfInterest.sql', dag=dag)
 create_static_regional_funding = PostgresOperator(task_id='create_static_regional_funding', sql='crTbl_creStlRgnlFndngClnd.sql', dag=dag)
 create_success_date_and_covid_core = PostgresOperator(task_id='create_success_date_and_covid_core', sql='crTbl_creRstOthrs.sql', dag=dag)
+create_lookup_zip_tract_geo = PostgresOperator(task_id='create_lookup_zip_tract_geo', sql='crTbl_lkupZipTractGeo.sql', dag=dag)
+load_areas_of_interest = PythonOperator(
+    task_id='load_areas_of_interest',
+    python_callable=load_file,
+    op_kwargs={
+        'filename': 'areasOfNtrst_geoScope_pipDlm.csv',
+        'table_name': 'lkup_areas_of_intr_geo_scope',
+        'sep': '|',
+        'nullstr': ''
+    },
+    dag=dag)
+load_zip_tract_geo = PythonOperator(
+    task_id='load_zip_tract_geo',
+    python_callable=load_file,
+    op_kwargs={
+        'filename': 'zip_tract_geoid.csv',
+        'table_name': 'lkup_zip_tract_geoid',
+        'sep': '|',
+        'nullstr': ''
+    },
+    dag=dag)
+load_static_regional_funding = PythonOperator(
+    task_id='load_static_regional_funding',
+    python_callable=load_file,
+    op_kwargs={
+        'filename': 'stl_regional_funding_cleaned.csv',
+        'table_name': 'cre_stl_rgnl_fndng_clnd',
+        'sep': '|',
+        'nullstr': ''
+    },
+    dag=dag)
+
 
 # Utilize "chain" function for more complex relationships among dag operators
-create_connections >> [create_staging_unemployment_211,
-                       create_staging_covid_zip,
-                       create_staging_covid_full,
-                       create_lookup_tables,
-                       create_static_regional_funding,
-                       create_success_date_and_covid_core]
+chain(
+    create_staging_unemployment_211,
+    [create_staging_covid_zip,create_staging_covid_full],
+    create_lookup_interest_areas,
+    create_static_regional_funding,
+    create_success_date_and_covid_core,
+    create_lookup_zip_tract_geo,
+    load_areas_of_interest,
+    load_zip_tract_geo,
+    load_static_regional_funding
+)
