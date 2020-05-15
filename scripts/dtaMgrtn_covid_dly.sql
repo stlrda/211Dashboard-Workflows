@@ -14,6 +14,15 @@
 --  2. INSERT the records from the staging tables with REPORT_DATE that is on or
 --     after the 'LAST_SUCCESSFUL' run date.
 --
+-- ---------------------------------------------------------------------
+-- 2020-05-15 (Fri.) Haresh Bhatia.
+--
+-- Chanded the reference day for incremental data to be a day prior to the 
+-- LST_CUCESS_DT. 
+-- 
+-- This is to circumvent the issues with missing a day's worth of data due to
+-- the corresponding daily DAG running mid-night. [This is not a perfect 
+-- solution, but a solution until a better resolution is found / decided.]
 --
 --==================================================================================
 --
@@ -32,7 +41,8 @@ DELETE
 -- A2. INSERT the records from the staging tables with REPORT_DATE that is on or
 --     after the 'LAST_SUCCESSFUL' run date.
 WITH lst_sccss_run AS
-(SELECT  lst_success_dt   last_run_dt
+--(SELECT  lst_success_dt   incr_data_ref_dt      -- Change done on 05/15/2020
+(SELECT  (lst_success_dt - 1)  incr_data_ref_dt   -- Change done on 05/15/2020
    FROM  cre_last_success_run_dt
   WHERE  run_cd = 'DLY_ALL'
 )
@@ -70,7 +80,7 @@ INSERT INTO cre_covid_data
          ca.case_fatality_rate
    FROM  stg_covid_dly_viz_cnty_all   ca,
          lst_sccss_run                  sr
-  WHERE  ca.report_date >= sr.last_run_dt
+  WHERE  ca.report_date >= sr.incr_data_ref_dt
  UNION ALL
  SELECT 'STL_COUNTY'    data_source,
          cn.report_dt   report_date,
@@ -89,7 +99,7 @@ INSERT INTO cre_covid_data
          NULL
    FROM  stg_covid_zip_stl_county   cn,
          lst_sccss_run              sr
-  WHERE  cn.report_dt >= sr.last_run_dt
+  WHERE  cn.report_dt >= sr.incr_data_ref_dt
  UNION ALL
  SELECT 'STL_CITY'      data_source,
          ct.report_dt   report_date,
@@ -108,7 +118,7 @@ INSERT INTO cre_covid_data
          NULL
    FROM  stg_covid_zip_stl_city   ct,
          lst_sccss_run            sr
-  WHERE  ct.report_dt >= sr.last_run_dt
+  WHERE  ct.report_dt >= sr.incr_data_ref_dt
 )
 ;
 
