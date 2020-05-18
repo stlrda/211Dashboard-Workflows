@@ -15,13 +15,14 @@ from scripts.callables import scrape_file, load_file, scrape_api
 '''
 Startup Configuration DAG
 
-1. Create Airflow "connections" (should only be for development environment)
+1. Create Airflow "connections" (only for development environment)
 2. Create tables
     a. Staging, Lookup, Core, and Schedule tables
     b. Schedule table is designed to record the datetime of last successful dag runs
        This may be used in future dags for data pull coordinations
-3. Populate older unemployment data (e.g. 2019)
-    a. For both MO and IL
+3. Backfill unemployment data (core or staging?)
+    a. 2019 Unemployment stats data from BLS
+    b. Full MO Unemployment claims dataset from data.mo.gov API
 4. Populate "static" core tables
     a. Census and Funding data (will also be included in "manual" dag)
     b. Lookup tables - ideally won't change over the course of the project
@@ -33,7 +34,7 @@ AIRFLOW_HOME = os.environ['AIRFLOW_HOME']
 
 args = {
     'owner': '211dashboard',
-    'start_date': datetime(2020, 5, 12),
+    'start_date': datetime(2020, 5, 19),
     'concurrency': 1,
     'retries': 0,
     'depends_on_past': False,
@@ -50,11 +51,11 @@ dag = DAG(
 create_staging_unemployment_211 = PostgresOperator(task_id='create_staging_unemployment_211', sql='crTbl_stgMoNmplymntClmsAnd211Dta.sql', dag=dag) 
 create_staging_covid_zip = PostgresOperator(task_id='create_staging_covid_zip', sql='crTbl_stgCovidUpdtZpCtyAndCnty.sql', dag=dag) 
 create_staging_covid_full = PostgresOperator(task_id='create_staging_covid_full', sql='crTbl_stgCovidDlyVizByCntyAll.sql', dag=dag)
-#TODO create file with areas of interest for loading on startup (put file in s3)
 create_lookup_interest_areas = PostgresOperator(task_id='create_lookup_interest_areas', sql='crTbl_lkupZpCdAndAreasOfInterest.sql', dag=dag)
 create_static_regional_funding = PostgresOperator(task_id='create_static_regional_funding', sql='crTbl_creStlRgnlFndngClnd.sql', dag=dag)
 create_success_date_and_covid_core = PostgresOperator(task_id='create_success_date_and_covid_core', sql='crTbl_creRstOthrs.sql', dag=dag)
 create_lookup_zip_tract_geo = PostgresOperator(task_id='create_lookup_zip_tract_geo', sql='crTbl_lkupZipTractGeo.sql', dag=dag)
+#TODO edit areas of interest file to include "geoid"
 load_areas_of_interest = PythonOperator(
     task_id='load_areas_of_interest',
     python_callable=load_file,

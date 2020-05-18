@@ -13,7 +13,14 @@ from scripts.transformers import transform_unemployment_stats
 #from dags.211Dashboard.scripts.callables import scrape_file, load_file, scrape_api
 
 '''
-Monthly DAG description
+Monthly DAG
+
+1. Scrape unemployment statistics from the Bureau of Labor and Statistics
+2. Truncate monthly stats staging table
+3. Load current unemployment data to staging
+4. Transfer data from staging to core
+    a. "Filtered" by date
+5. Update monthly run success timestamp
 
 '''
 
@@ -35,6 +42,8 @@ dag = DAG(
     template_searchpath=f'{AIRFLOW_HOME}/scripts/', #TODO production_path = AIRFLOW_HOME/dags/211dashboard/scripts/
     default_args=args
 )
+
+''' Define monthly airflow operators. '''
 
 scrape_unemployment_stats = PythonOperator(
     task_id='scrape_unemployment_stats',

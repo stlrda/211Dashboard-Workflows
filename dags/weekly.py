@@ -12,7 +12,14 @@ from scripts.callables import scrape_api, load_file
 #from dags.211Dashboard.scripts.callables import scrape_file, load_file, scrape_api
 
 '''
-Weekly DAG description
+Weekly DAG
+
+1. Scrape MO unemployment claims data (from API)
+2. Truncate MO unemployment claims staging table
+3. Load MO unemployment claims data to staging
+4. Move unemployment claims data from staging to core table
+    a. "Filtered" by date
+5. Update weekly run success timestamp
 
 '''
 
@@ -21,7 +28,7 @@ AIRFLOW_HOME = os.environ['AIRFLOW_HOME']
 
 args = {
     'owner': '211dashboard',
-    'start_date': datetime(2020, 5, 18),  # change this
+    'start_date': datetime(2020, 5, 19),  # change this
     'concurrency': 1,
     'retries': 0,
     'depends_on_past': False,
@@ -34,6 +41,8 @@ dag = DAG(
     template_searchpath=f'{AIRFLOW_HOME}/scripts/', #TODO production_path = AIRFLOW_HOME/dags/211dashboard/scripts/
     default_args=args
 )
+
+''' Define weekly airflow operators. '''
 
 scrape_mo_unemployment_claims = PythonOperator(
     task_id='scrape_mo_unemployment_claims',

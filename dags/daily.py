@@ -1,7 +1,6 @@
 import os, sys, json
 from datetime import datetime, timedelta
 from airflow.models import DAG
-#from airflow.operators.bash_operator import BashOperator
 from airflow.operators.python_operator import PythonOperator
 from airflow.operators.postgres_operator import PostgresOperator
 from airflow.utils.helpers import chain
@@ -10,7 +9,7 @@ from airflow.utils.helpers import chain
 sys.path.append('.')
 from scripts.callables import scrape_file, load_file
 #TODO for production environment change module paths -- such as...
-#from dags.211Dashboard.scripts.callables import scrape_file, load_file, scrape_api
+#from dags.211Dashboard.scripts.callables import scrape_file, load_file
 
 '''
 Daily DAG
@@ -18,15 +17,17 @@ Daily DAG
 1. Scrape COVID-19 data
     a. Data sourced from Chris Prener's github at
        "https://github.com/slu-openGIS/covid_daily_viz/tree/master/data"
-2. Truncate staging tables
-3. Load COVID-19 data to staging tables
-4. Load 211 data to staging tables
-    a. NOTE this data will eventually have to be scraped (ideally daily)
+2. Eventually, "scrape" 211 data (waiting on United Way data...)
+3. Truncate staging tables
+4. Load COVID-19 data to staging tables
+5. Load 211 data to staging tables
+    a. NOTE this data will eventually have to be scraped (see 2.)
        however for now we will just use a static file in the s3 bucket
-       "sample_211_mo_data_ ... .csv"
-5. Move data from staging to core tables
+       "sample_211_mo_data.csv"
+6. Move data from staging to core tables
     a. Apply appropriate filters and aggregations
-6. Update timestamp
+    b. Data: COVID and 211
+7. Update successful run timestamp
 
 '''
 
@@ -37,7 +38,7 @@ AIRFLOW_HOME = os.environ['AIRFLOW_HOME']
 
 args = {
     'owner': '211dashboard',
-    'start_date': datetime(2020, 5, 12),  # change this
+    'start_date': datetime(2020, 5, 19),  # change this
     'concurrency': 1,
     'retries': 0,
     'depends_on_past': False,
