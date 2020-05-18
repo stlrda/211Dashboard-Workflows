@@ -3,19 +3,23 @@
 --
 -- This is DDL to create a few lookup tables 
 --
+-- ---------------------------------------------------------------------------------------
+-- 2020-05-18 (Mon.) 
+-- 1. Table LKUP_COUNTY_ZIP_CITY was later deemed redundent and dropped.
+--
+-- 2. The name of the column COUNTY was changed to COUNTY_NM to stadardize the 
+--    naming convention.
+--
+--=======================================================================================================
 -- A. LKUP_COUNTY_ZIP_CITY.
 -- 
 -- 1. This table contains the lookup for County along with underling zip-codes
 --    and cities.
 -- 2. The data for this table comes from the S3 bucket file-path
---    "s3://uw211dashboard-workbucket/mo_county_zip_city.csv"
--- 3. This file was downloaded by Keenan Berry from "https://data.mo.gov/api/views/im7g-fucq/rows.csv?accessType=DOWNLOAD"
---    The data can also be accessed via API call:
---      - API Endpoint: "https://data.mo.gov/resource/im7g-fucq.json"
---      - Dataset name: "im7g-fucq"
+--    "s3://uw211dashboard-workbucket/mo_county_zip_city.csvø"
+-- 3. This file was downloaded by Keenan Berry from ...
 --
 -- 4. The first row of this (data) file has column names
---    File delimiter: ","
 --  
 --
 CREATE TABLE 
@@ -25,10 +29,17 @@ CREATE TABLE
  city           VARCHAR(30)
 );
 
-COMMENT ON TABLE uw211dashboard.public.lkup_county_zip_city IS
-'Table contains the raw data from file that was downloaded from "https://data.mo.gov/resource/im7g-fucq.json".'
+COMMENT ON TABLE stg_covid_dly_viz_cnty_all IS
+'Table contains the raw data from file that was downloaded from "https://data.mo.gov/Geography/Missouri-Zip-Codes-by-County-City/im7g-fucq".'
 ;
 
+-- ---------------------------
+-- 2020-05-18 (Mon.) 
+-- 1. Table LKUP_COUNTY_ZIP_CITY was later deemed redundent and dropped.
+DROP TABLE uw211dashboard.public.lkup_county_zip_city
+;
+
+-- ----------------------------------------------------------------
 -- B. LKUP_AREAS_OF_INTR_GEO_SCOPE.
 -- 
 -- 1. This DDL creates table LKUP_AREAS_OF_INTR_GEO_SCOPE.
@@ -54,4 +65,14 @@ COMMENT ON TABLE uw211dashboard.public.lkup_areas_of_intr_geo_scope IS
 The data for this table was manually created using information from the metro area map provided by the RDA at "https://helpingpeople.org/who-we-are/our-reach/" (for metro area counties) and table that has daily covid counts (got distinct county names for Missouri State).'
 ;
 
+-- ---------------------------
+-- 2020-05-18 (Mon.) 
+-- 1. ... (see the file header above)
+--
+-- 2. The name of the column COUNTY was changed to COUNTY_NM to stadardize the 
+--    naming convention.
+
+ALTER  TABLE   uw211dashboard.public.lkup_areas_of_intr_geo_scope
+RENAME COLUMN  county  TO  county_nm
+;
 
