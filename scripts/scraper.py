@@ -111,3 +111,19 @@ class Scraper:
         obj = self.s3_conn.Object(self.bucket_name, filename)
         obj.put(Body=content)
         logger.info(f'{filename} uploaded to s3 bucket.')
+
+    def url_transform_to_s3(self, filename, transform_func, sep='|'):
+        """
+        Description
+
+        """
+        df = transform_func(self.url)
+        csv_buf = StringIO()
+        df.to_csv(csv_buf, sep=sep, header=True, index=False)
+        csv_buf.seek(0)
+        content = csv_buf.getvalue()
+        
+        # create s3 object
+        obj = self.s3_conn.Object(self.bucket_name, filename)
+        obj.put(Body=content)
+        logger.info(f'{filename} uploaded to s3 bucket.')

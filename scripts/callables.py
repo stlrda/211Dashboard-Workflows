@@ -26,6 +26,17 @@ def scrape_api(**kwargs):
                 limit=kwargs['limit'])
 
 
+def scrape_transform(**kwargs):
+    '''
+    Description here
+    '''
+    s = Scraper(kwargs['url'], Config)
+    s.connect_s3_sink()
+    s.url_transform_to_s3(filename=kwargs['filename'],
+                          transform_funct=kwargs['transformer'], 
+                          sep=kwargs['sep'])
+
+
 def load_file(**kwargs):
     '''
     Description here
