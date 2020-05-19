@@ -24,6 +24,12 @@
 -- the corresponding daily DAG running mid-night. [This is not a perfect 
 -- solution, but a solution until a better resolution is found / decided.]
 --
+-- ---------------------------------------------------------------------
+-- 2020-05-19 (Tue.) Haresh Bhatia.
+--
+-- Chanded the reference day for incremental data to use the new BUFFER_CNT for
+-- offsetting the LAST_SUCCESS_DT so as to avoid missing any data records.
+--
 --==================================================================================
 --
 --
@@ -32,7 +38,7 @@
 --     'LAST_SUCCESSFUL' run date.
 DELETE
   FROM  cre_covid_data
- WHERE  report_date >= (SELECT  lst_success_dt
+ WHERE  report_date >= (SELECT  lst_success_dt - buffer_cnt
                           FROM  cre_last_success_run_dt
                          WHERE  run_cd = 'DLY_ALL'
                        )
@@ -42,7 +48,7 @@ DELETE
 --     after the 'LAST_SUCCESSFUL' run date.
 WITH lst_sccss_run AS
 --(SELECT  lst_success_dt   incr_data_ref_dt      -- Change done on 05/15/2020
-(SELECT  (lst_success_dt - 1)  incr_data_ref_dt   -- Change done on 05/15/2020
+(SELECT  (lst_success_dt - buffer_cnt)  incr_data_ref_dt   -- Change done on 05/15/2020
    FROM  cre_last_success_run_dt
   WHERE  run_cd = 'DLY_ALL'
 )
