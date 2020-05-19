@@ -1,6 +1,7 @@
 import os, sys
 from datetime import datetime, timedelta
 from airflow.models import DAG
+from airflow.operators.bash_operator import BashOperator
 from airflow.operators.python_operator import PythonOperator
 from airflow.operators.postgres_operator import PostgresOperator
 from airflow.utils.helpers import chain
@@ -50,3 +51,11 @@ dag = DAG(
 )
 
 ''' Define manual update operators. '''
+
+trigger_manual_test = BashOperator(
+    task_id='trigger_manual_test',
+    bash_command='echo Triggered manual dag!',
+    dag=dag,
+)
+
+trigger_manual_test
