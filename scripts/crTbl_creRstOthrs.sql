@@ -11,6 +11,16 @@
 -- 2. The values of the attribute shall indicate the staging table the data are 
 --    collected from. [See the table comments for more details.]
 -- 
+-------------------------------------------------------------------
+-- 2020-05-19 (Tue.) Haresh Bhatia.
+--
+-- 1. Additional core table CRE_UNEMPLOYMENT_CLMS
+-- 2. Modified table CRE_LAST_SUCCESS_RUN_DT to include attribute BUFFER_CNT
+--    that represents a margin of safty (around the SUCCESSFUL cut-off date for
+--    incremental data load.
+-- 3. Included additional records (to start with) in the INSERT statement for
+--    table CRE_LAST_SUCCESS_RUN_DT
+--
 --==================================================================================
 -- A. Table CRE_LAST_SUCCESS_RUN_DT
 --
@@ -27,6 +37,7 @@ CREATE TABLE
           IF NOT EXISTS  uw211dashboard.public.cre_last_success_run_dt
 (run_cd           VARCHAR(30) NOT NULL,   -- This refers to the run cycle code (e.g., DLY_ALL for all daily feeds)
  lst_success_dt   DATE        NOT NULL,
+ buffer_cnt       INTEGER     NOT NULL DEFAULT 0,   -- (2020-05-19) This is the constant buffer to account for safety (an extra period of data load)
  PRIMARY KEY (run_cd)
 )
 ;
@@ -39,7 +50,9 @@ COMMENT ON TABLE uw211dashboard.public.cre_last_success_run_dt IS
 -- This is the only table that this is done for in this DDL.
 
 INSERT INTO uw211dashboard.public.cre_last_success_run_dt
-VALUES ('DLY_ALL', '1900-01-01')
+VALUES ('DLY_ALL'   , '1900-01-01', 0),
+       ('WKLY_ALL'  , '1900-01-01', 0),   -- 2020-05-19 
+       ('MNTHLY_ALL', '1900-01-01', 0)    -- 2020-05-19 
 ;
 
 --==================================================================================
@@ -99,10 +112,54 @@ The data in STG_COVID_ZIP_STL_CounTY and ..._CiTY are (at least for present) lim
 These tables get daily data feeds from the source (staging) tables.'
 ;
 
+------------------------------------------------------------------------------------
+-- 2020-05-19 (Tue.) Haresh Bhatia
+--
+-- C. Table CRE_UNEMPLOYMENT_CLMS
+--
+-- 1. Table CRE_UNEMPLOYMENT_CLMS contains data for the unemployment claims data
+-- 2. The data for this table was consolidated from the following staging
+--    tables (usually weekly feeds).
+--
+--    a. STG_MO_UNEMPLOYMENT_CLMS (this has weekly MO claims details by county
+--       for week ending Sat. dates)
+-- 
+-- 3. Given that unemployment data are by county, these data records are
+--    associated with corresponding GEO_ID (from LKUP_ZIP_TRACT_GEOID).
+-- 
+-- 4. This table gets daily data feeds from the corresponding source (staging)
+--    tables.
+-- 
+--
+CREATE TABLE 
+          IF NOT EXISTS  uw211dashboard.public.cre_unemployment_clms
+(data_source         VARCHAR(20),  -- e.g., STG_MO_UNEMP_CLMS - for MO
+ period_end_date     DATE,         -- This is week ending Sat. date for MO
+ geo_id              VARCHAR(10),
+ state_nm            VARCHAR(30),
+ county_nm           VARCHAR(30),
+ claims_cnt          INTEGER,      -- unemployment claims count.
+ created_tsp         TIMESTAMPTZ     NOT NULL DEFAULT now(),
+ last_update_tsp     TIMESTAMPTZ     NOT NULL DEFAULT now(),
+ PRIMARY KEY (data_source, period_end_date, geo_id)
+)
+;
+
+COMMENT ON TABLE uw211dashboard.public.cre_unemployment_clms IS
+'Table CRE_UNEMPLOYMENT_CLMS gets data for the unemployment claims data for MO and IL. 
+
+At the time of creation of this core table, only MO-UNEMPLOYMENT data was available. [If the IL unemployment data structure does not conform to this table, it may be modified later.]
+
+Given that the unemployment data (at least for MO) is on weekly basis, this core table is scheduled to get weekly incremental feeds from the corresponding staging table source(s).]
+'
+;
+
+
+
 /* This is INCOMPLETE still...
 -------------------------------------------------------------------------------
 --
--- C. Table CRE_MO_211_DATA
+-- D. Table CRE_MO_211_DATA
 --
 -- 1. Table CRE_MO_211_DATA contains data for the 211 call-support related
 --    attributes along with CALL_DT (call category, sub-category, census_cd, etc.)
