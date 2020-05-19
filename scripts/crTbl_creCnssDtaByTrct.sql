@@ -61,6 +61,7 @@ MUA - Medically Underserved Area
 SVI - Sensus Vulnerability Index'
 ;
 --
+/* The view definition was transferred to a separate DDL file
 ----------------------------------------------------------------------------
 
 -- B. View CRE_VU_CENSUS_DATA_BY_TRACT_CURR.
@@ -122,4 +123,5 @@ GINI - Measures extent of economic inequality
 MUA - Medically Underserved Area
 SVI - Sensus Vulnerability Index'
 ;
+*/
 
