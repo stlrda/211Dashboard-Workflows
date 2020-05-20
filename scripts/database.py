@@ -55,7 +55,7 @@ class Database:
                 logger.info('Successfully established AWS s3 connection.')
 
     def csv_to_table(self, filename, table_name, sep=',', nullstr='NaN'):
-        '''
+        """
         This method uploads csv to a target table.
         
         Parameters
@@ -69,7 +69,10 @@ class Database:
         nullstr : str
             string which DB should interpret as NULL values
 
-        '''
+        """
+        # file_split = filename.split('.')
+        # file_split[0] = file_split[0] + '_current'
+        # filename = '.'.join(file_split)
         try:
             cur = self.conn.cursor()
             obj = self.s3_conn.Object(self.bucket_name, filename)
@@ -83,7 +86,7 @@ class Database:
             sys.exit()
 
     def close(self):
-        ''' Close the database client connection. '''
+        """Close the database client connection."""
         if self.conn is None:
             logger.info('No connection to close.')
         else:

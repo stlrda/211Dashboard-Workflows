@@ -7,7 +7,7 @@ from io import StringIO
 import csv
 
 class Scraper:
-    """PostgreSQL Database class."""
+    """ Web scraping and file writing class. """
 
     def __init__(self, url, config):
         self.url = url
@@ -19,7 +19,7 @@ class Scraper:
         self.api_token = config.API_TOKEN
         self.api_user_email = config.API_USER_EMAIL
         self.api_user_pwd = config.API_USER_PWD
-    
+
     def connect_s3_sink(self):
         """Connect to AWS s3 storage."""
         if self.s3_conn is None:
@@ -36,7 +36,33 @@ class Scraper:
             finally:
                 logger.info('Successfully established AWS s3 connection.')
 
-    def url_to_s3(self, filename=None, filters=None, nullstr='NaN'):
+    def __rename_file(self, filename):
+        """ Add '_current' to filename. """
+        name_components = filename.split('.')
+        name_components[0] = name_components[0]+'_current'
+        return '.'.join(name_components)
+    
+    def __archive_file(self, curr_filename):
+        """ 
+        Archives 'current' file data in S3.
+
+        Parameters
+        ----------
+        curr_filename : str 
+            file name + '_current' + extension
+        
+        """
+        archived_filename = curr_filename.replace('_current', '_previous')
+        try:
+            copy_source = {
+                'Bucket': self.bucket_name,
+                'Key': curr_filename
+            }
+            self.s3_conn.meta.client.copy(copy_source, self.bucket_name, archived_filename)
+        except:
+            logger.info(f'The file "{curr_filename}" does not exist.')
+
+    def url_to_s3(self, filename, filters=None, nullstr=''):
         """
         Upload file from web to s3 storage.
 
@@ -54,8 +80,6 @@ class Scraper:
             string assigned to null values when writing csv file
 
         """
-        if filename is None:
-            filename = self.url.split('/')[-1]
         
         if filters is None:
             # download file from web
@@ -73,6 +97,10 @@ class Scraper:
             csv_buf.seek(0)
             content = csv_buf.getvalue()
         
+        # add "_current" to filename
+        filename = self.__rename_file(filename)
+        # copy "_current" file in bucket to "_previous"
+        self.__archive_file(filename)
         # create s3 object
         obj = self.s3_conn.Object(self.bucket_name, filename)
         obj.put(Body=content)
@@ -102,11 +130,17 @@ class Scraper:
         logger.info(f'Fetching data from {self.url} API.')
         records = api_client.get(table_name, limit=limit)
         df = pd.DataFrame.from_records(records)
+        
         # write csv
         csv_buf = StringIO()
         df.to_csv(csv_buf, header=True, index=False)
         csv_buf.seek(0)
         content = csv_buf.getvalue()
+
+        # add "_current" to filename
+        filename = self.__rename_file(filename)
+        # copy "_current" file in bucket to "_previous"
+        self.__archive_file(filename)
         # create s3 object
         obj = self.s3_conn.Object(self.bucket_name, filename)
         obj.put(Body=content)
@@ -123,6 +157,10 @@ class Scraper:
         csv_buf.seek(0)
         content = csv_buf.getvalue()
         
+        # add "_current" to filename
+        filename = self.__rename_file(filename)
+        # copy "_current" file in bucket to "_previous"
+        self.__archive_file(filename)
         # create s3 object
         obj = self.s3_conn.Object(self.bucket_name, filename)
         obj.put(Body=content)
