@@ -202,10 +202,10 @@ update_daily_timestamp = PostgresOperator(
 ''' Set relationships among Operators in Daily DAG. '''
 
 chain(
-    [scrape_covid_county_full, scrape_covid_zip_stl_city, scrape_covid_zip_stl_county],  # scrape data
-    truncate_daily_staging_tables,  # truncate staging
-    [load_covid_county_full_staging, load_covid_zip_stl_city_staging, load_covid_zip_stl_county_staging, load_211_staging],  # load staging
-    covid_staging_to_core,  # staging --> core
+    [scrape_covid_county_full, scrape_covid_zip_stl_city, scrape_covid_zip_stl_county],
+    truncate_daily_staging_tables,
+    [load_covid_county_full_staging, load_covid_zip_stl_city_staging, load_covid_zip_stl_county_staging, load_211_staging],
+    covid_staging_to_core,
     # load_211_staging
     # 211_staging_to_core # (not ready yet)
     update_daily_timestamp
