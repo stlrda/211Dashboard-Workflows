@@ -36,7 +36,7 @@ AIRFLOW_HOME = os.environ['AIRFLOW_HOME']
 
 args = {
     'owner': '211dashboard',
-    'start_date': datetime(2020, 5, 19),
+    'start_date': datetime(2020, 5, 21),
     'concurrency': 1,
     'retries': 0,
     'depends_on_past': False,

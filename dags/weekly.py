@@ -18,7 +18,7 @@ Weekly DAG
 2. Truncate MO unemployment claims staging table
 3. Load MO unemployment claims data to staging
 4. Move unemployment claims data from staging to core table
-    a. "Filtered" by date
+    a. "Filtered" by date (see SQL script)
 5. Update weekly run success timestamp
 
 '''
@@ -28,7 +28,7 @@ AIRFLOW_HOME = os.environ['AIRFLOW_HOME']
 
 args = {
     'owner': '211dashboard',
-    'start_date': datetime(2020, 5, 19),  # change this
+    'start_date': datetime(2020, 5, 21),  # change this
     'concurrency': 1,
     'retries': 0,
     'depends_on_past': False,
@@ -76,14 +76,14 @@ wkly_unemployment_claims_staging_to_core = PostgresOperator(
     sql='dtaMgrtn_unemplClms_wkly.sql', 
     dag=dag) 
 
-# update_weekly_timestamp = PostgresOperator(
-#     task_id='update_weekly_timestamp', 
-#     sql='setLstSccssflRnDt_wklyAll.sql', 
-#     dag=dag) 
+update_weekly_timestamp = PostgresOperator(
+    task_id='update_weekly_timestamp', 
+    sql='setLstSccssflRnDt_wklyAll.sql', 
+    dag=dag) 
 
 chain(scrape_mo_unemployment_claims,
       truncate_weekly_staging_tables,
       load_mo_unemployment_claims_staging,
-      wkly_unemployment_claims_staging_to_core
-      # ,update_weekly_timestamp
-      )
+      wkly_unemployment_claims_staging_to_core,
+      update_weekly_timestamp
+)
