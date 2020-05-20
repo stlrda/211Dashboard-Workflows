@@ -16,7 +16,7 @@
 -- 1. This table contains the lookup for County along with underling zip-codes
 --    and cities.
 -- 2. The data for this table comes from the S3 bucket file-path
---    "s3://uw211dashboard-workbucket/mo_county_zip_city.csvø"
+--    "s3://uw211dashboard-workbucket/mo_county_zip_city.csvï¿½"
 -- 3. This file was downloaded by Keenan Berry from ...
 --
 -- 4. The first row of this (data) file has column names

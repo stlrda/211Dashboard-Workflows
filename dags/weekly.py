@@ -51,7 +51,7 @@ scrape_mo_unemployment_claims = PythonOperator(
         'url': 'data.mo.gov',
         'filename': 'mo_unemployment_claims.csv',
         'table_name': 'qet9-8yam',
-        'limit': 4000  # buffer in case airflow cluster goes down for extended time
+        'limit': 2000  # buffer in case airflow cluster goes down for extended time
     },
     dag=dag)
 
@@ -71,11 +71,19 @@ load_mo_unemployment_claims_staging = PythonOperator(
     },
     dag=dag)
 
-# unemployment_claims_staging_to_core = PostgresOperator(
-#     task_id='unemployment_claims_staging_to_core', 
-#     sql='dtaMgrtn_unemployment_claims_wkly.sql', 
+wkly_unemployment_claims_staging_to_core = PostgresOperator(
+    task_id='wkly_unemployment_claims_staging_to_core', 
+    sql='dtaMgrtn_unemplClms_wkly.sql', 
+    dag=dag) 
+
+# update_weekly_timestamp = PostgresOperator(
+#     task_id='update_weekly_timestamp', 
+#     sql='setLstSccssflRnDt_wklyAll.sql', 
 #     dag=dag) 
 
 chain(scrape_mo_unemployment_claims,
       truncate_weekly_staging_tables,
-      load_mo_unemployment_claims_staging)
+      load_mo_unemployment_claims_staging,
+      wkly_unemployment_claims_staging_to_core
+      # ,update_weekly_timestamp
+      )
