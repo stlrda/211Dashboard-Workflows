@@ -14,12 +14,17 @@
 -------------------------------------------------------------------
 -- 2020-05-19 (Tue.) Haresh Bhatia.
 --
--- 1. Additional core table CRE_UNEMPLOYMENT_CLMS
+-- 1. Additional core table CRE_UNEMPLOYMENT_CLMS created
 -- 2. Modified table CRE_LAST_SUCCESS_RUN_DT to include attribute BUFFER_CNT
 --    that represents a margin of safty (around the SUCCESSFUL cut-off date for
 --    incremental data load.
 -- 3. Included additional records (to start with) in the INSERT statement for
 --    table CRE_LAST_SUCCESS_RUN_DT
+--
+-------------------------------------------------------------------
+-- 2020-05-20 (Wed.) Haresh Bhatia.
+--
+-- Additional core table CRE_BLS_UNEMPLOYMENT_DATA created
 --
 --==================================================================================
 -- A. Table CRE_LAST_SUCCESS_RUN_DT
@@ -51,8 +56,8 @@ COMMENT ON TABLE uw211dashboard.public.cre_last_success_run_dt IS
 
 INSERT INTO uw211dashboard.public.cre_last_success_run_dt
 VALUES ('DLY_ALL'   , '1900-01-01', 0),
-       ('WKLY_ALL'  , '1900-01-01', 0),   -- 2020-05-19 
-       ('MNTHLY_ALL', '1900-01-01', 0)    -- 2020-05-19 
+       ('WKLY_ALL'  , '1900-01-01', 0),   -- added 2020-05-19 
+       ('MNTHLY_ALL', '1900-01-01', 0)    -- added 2020-05-19 
 ;
 
 --==================================================================================
@@ -117,7 +122,7 @@ These tables get daily data feeds from the source (staging) tables.'
 --
 -- C. Table CRE_UNEMPLOYMENT_CLMS
 --
--- 1. Table CRE_UNEMPLOYMENT_CLMS contains data for the unemployment claims data
+-- 1. Table CRE_UNEMPLOYMENT_CLMS contains the unemployment claims data
 -- 2. The data for this table was consolidated from the following staging
 --    tables (usually weekly feeds).
 --
@@ -146,7 +151,7 @@ CREATE TABLE
 ;
 
 COMMENT ON TABLE uw211dashboard.public.cre_unemployment_clms IS
-'Table CRE_UNEMPLOYMENT_CLMS gets data for the unemployment claims data for MO and IL. 
+'Table CRE_UNEMPLOYMENT_CLMS contains the unemployment claims data for MO and IL. 
 
 At the time of creation of this core table, only MO-UNEMPLOYMENT data was available. [If the IL unemployment data structure does not conform to this table, it may be modified later.]
 
@@ -154,6 +159,60 @@ Given that the unemployment data (at least for MO) is on weekly basis, this core
 '
 ;
 
+------------------------------------------------------------------------------------
+-- 2020-05-20 (Wed.) Haresh Bhatia
+--
+-- D. Table CRE_BLS_UNEMPLOYMENT_DATA
+--
+-- 1. Table CRE_BLS_UNEMPLOYMENT_DATA contains the unemployment statistics
+-- 2. The data for this table is taken from staging table STG_BLS_UNEMPLOYMENT_DATA_CURR,
+--    which contains monthly unemployment data, by county, as reported by Bureau
+--    Labor Statistics (BLS).
+-- 3. Clarifying background:
+--     a. The BLS current unemployment data download is for 14 months. The BLS
+--        website also maintains yearly files.
+--     b. To get all relevant months for 2019, the corresponding annual data was
+--        also downloaded in a separate file
+--     c. After loading the 2019 data (for each of the 12 months), only 2020
+--        data (by month) was loaded from 'Current' file.
+-- 4. The STATE_FIPS_CD (2-char) and COUNTY_FIPS_CD (3-char) combined (total 5-char)
+--    makes the GEO_ID. 
+--     a. Given that GEO_ID can be derived by combining STATE_... and COUNTY_FIPS_CD
+--        GEO_ID was not ported from the staging file.
+--     b. This table was, however, maintained in a bit de-normalized form, and
+--        includes STATE_NM and COUNTY_NM for the corresponding GEO_ID.
+-- 5. This table is expected to be refreshed every month.
+-- 
+CREATE TABLE 
+          IF NOT EXISTS  uw211dashboard.public.cre_bls_unemployment_data
+(state_fips_cd     VARCHAR(2),
+ county_fips_cd    VARCHAR(3),
+ month_last_date   DATE,
+ state_nm          VARCHAR(30),
+ county_nm         VARCHAR(30),
+ labor_force       INTEGER,
+ employed          INTEGER,
+ unemployed        INTEGER,
+ unemployed_rate   NUMERIC(6,3),
+ created_tsp       TIMESTAMPTZ     NOT NULL DEFAULT now(),
+ last_update_tsp   TIMESTAMPTZ     NOT NULL DEFAULT now(),
+ PRIMARY KEY (state_fips_cd, county_fips_cd, month_last_date)
+)
+;
+
+COMMENT ON TABLE uw211dashboard.public.cre_bls_unemployment_data IS
+'This table contains the unemployment statistics (for MO and IL).
+
+The data are taken from the staging table STG_BLS_UNEMPLOYMENT_DATA_CURR, which contains monthly unemployment data, by county, as reported on Bureau of Labor Statistics (BLS).
+
+The STATE_FIPS_CD and COUNTY_FIPS_CD, 2- and 3- characters respectively, make the GEO_ID (5-chars). This table is denormalized to include respective STATE_NM and COUNTY_NM as well.
+
+This core table data is expected to get incremental feeds monthly.
+'
+;
+
+
+--==============================================================================================
 
 
 /* This is INCOMPLETE still...
