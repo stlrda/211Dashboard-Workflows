@@ -205,6 +205,7 @@ chain(
     [scrape_covid_county_full, scrape_covid_zip_stl_city, scrape_covid_zip_stl_county],
     truncate_daily_staging_tables,
     [load_covid_county_full_staging, load_covid_zip_stl_city_staging, load_covid_zip_stl_county_staging],
+    
     load_211_staging,
     covid_staging_to_core, #TODO remove this once 211 staging-->core is ready
     #[covid_staging_to_core, 211_staging_to_core],

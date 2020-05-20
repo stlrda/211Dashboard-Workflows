@@ -54,6 +54,19 @@ class Database:
             finally:
                 logger.info('Successfully established AWS s3 connection.')
 
+    def __check_for_current(self, filename):
+        file_split = filename.split('.')
+        file_split[0] = file_split[0] + '_current'
+        curr_filename = '.'.join(file_split)
+        try:
+            self.s3_conn.head_object(
+                Bucket=self.bucket_name,
+                Key=curr_filename
+            )
+        except ClientError:
+            curr_filename = filename
+        return curr_filename
+
     def csv_to_table(self, filename, table_name, sep=',', nullstr='NaN'):
         """
         This method uploads csv to a target table.
@@ -70,10 +83,9 @@ class Database:
             string which DB should interpret as NULL values
 
         """
-        # file_split = filename.split('.')
-        # file_split[0] = file_split[0] + '_current'
-        # filename = '.'.join(file_split)
+        
         try:
+            filename = self.__check_for_current(filename)
             cur = self.conn.cursor()
             obj = self.s3_conn.Object(self.bucket_name, filename)
             body = obj.get()['Body']

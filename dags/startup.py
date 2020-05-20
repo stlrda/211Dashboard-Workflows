@@ -51,21 +51,22 @@ dag = DAG(
 create_staging_unemployment_211 = PostgresOperator(task_id='create_staging_unemployment_211', sql='crTbl_stgMoNmplymntClmsAnd211Dta.sql', dag=dag) 
 create_staging_covid_zip = PostgresOperator(task_id='create_staging_covid_zip', sql='crTbl_stgCovidUpdtZpCtyAndCnty.sql', dag=dag) 
 create_staging_covid_full = PostgresOperator(task_id='create_staging_covid_full', sql='crTbl_stgCovidDlyVizByCntyAll.sql', dag=dag)
-create_lookup_interest_areas = PostgresOperator(task_id='create_lookup_interest_areas', sql='crTbl_lkupZpCdAndAreasOfInterest.sql', dag=dag)
+# create_lookup_interest_areas = PostgresOperator(task_id='create_lookup_interest_areas', sql='crTbl_lkupZpCdAndAreasOfInterest.sql', dag=dag)
 create_static_regional_funding = PostgresOperator(task_id='create_static_regional_funding', sql='crTbl_creStlRgnlFndngClnd.sql', dag=dag)
-create_success_date_and_covid_core = PostgresOperator(task_id='create_success_date_and_covid_core', sql='crTbl_creRstOthrs.sql', dag=dag)
+create_success_date_covid_core_unemployment_claims = PostgresOperator(task_id='create_success_date_covid_core_unemployment_claims', sql='crTbl_creRstOthrs.sql', dag=dag)
 create_lookup_zip_tract_geo = PostgresOperator(task_id='create_lookup_zip_tract_geo', sql='crTbl_lkupZipTractGeo.sql', dag=dag)
+create_census_by_tract = PostgresOperator(task_id='create_census_by_tract', sql='crTbl_creCnssDtaByTrct.sql', dag=dag)
 #TODO edit areas of interest file to include "geoid"
-load_areas_of_interest = PythonOperator(
-    task_id='load_areas_of_interest',
-    python_callable=load_file,
-    op_kwargs={
-        'filename': 'areasOfNtrst_geoScope_pipDlm.csv',
-        'table_name': 'lkup_areas_of_intr_geo_scope',
-        'sep': '|',
-        'nullstr': ''
-    },
-    dag=dag)
+# load_areas_of_interest = PythonOperator(
+#     task_id='load_areas_of_interest',
+#     python_callable=load_file,
+#     op_kwargs={
+#         'filename': 'areasOfNtrst_geoScope_pipDlm.csv',
+#         'table_name': 'lkup_areas_of_intr_geo_scope',
+#         'sep': '|',
+#         'nullstr': ''
+#     },
+#     dag=dag)
 load_zip_tract_geo = PythonOperator(
     task_id='load_zip_tract_geo',
     python_callable=load_file,
@@ -86,17 +87,29 @@ load_static_regional_funding = PythonOperator(
         'nullstr': ''
     },
     dag=dag)
+load_census_by_tract = PythonOperator(
+    task_id='load_census_by_tract',
+    python_callable=load_file,
+    op_kwargs={
+        'filename': 'census_data_by_tract.csv',
+        'table_name': 'cre_census_data_by_tract_yr2018',
+        'sep': '|',
+        'nullstr': ''
+    },
+    dag=dag)
 
 
 # Utilize "chain" function for more complex relationships among dag operators
 chain(
     create_staging_unemployment_211,
     [create_staging_covid_zip,create_staging_covid_full],
-    create_lookup_interest_areas,
+    # create_lookup_interest_areas,
     create_static_regional_funding,
-    create_success_date_and_covid_core,
+    create_success_date_covid_core_unemployment_claims,
     create_lookup_zip_tract_geo,
-    load_areas_of_interest,
+    create_census_by_tract,
+    # load_areas_of_interest,
     load_zip_tract_geo,
-    load_static_regional_funding
+    load_static_regional_funding,
+    load_census_by_tract
 )

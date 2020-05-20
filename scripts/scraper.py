@@ -38,9 +38,9 @@ class Scraper:
 
     def __rename_file(self, filename):
         """ Add '_current' to filename. """
-        name_components = filename.split('.')
-        name_components[0] = name_components[0]+'_current'
-        return '.'.join(name_components)
+        file_split = filename.split('.')
+        file_split[0] = file_split[0]+'_current'
+        return '.'.join(file_split)
     
     def __archive_file(self, curr_filename):
         """ 
@@ -59,8 +59,8 @@ class Scraper:
                 'Key': curr_filename
             }
             self.s3_conn.meta.client.copy(copy_source, self.bucket_name, archived_filename)
-        except:
-            logger.info(f'The file "{curr_filename}" does not exist.')
+        except ClientError as e:
+            logger.error(e)
 
     def url_to_s3(self, filename, filters=None, nullstr=''):
         """

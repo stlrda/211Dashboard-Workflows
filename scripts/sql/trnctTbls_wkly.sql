@@ -5,5 +5,4 @@
 -- refreshed for weekly run.
 --==================================================================================
 
-TRUNCATE TABLE stg_mo_unemployment_clms
-;
+TRUNCATE TABLE stg_mo_unemployment_clms;
