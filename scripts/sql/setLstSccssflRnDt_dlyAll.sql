@@ -14,7 +14,7 @@
 -- 2020-05-19 (Tue.) Haresh Bhatia
 --
 -- Changing the logic of setting the LST_SUCCESS_DT of table CRE_LAST_SUCCESS_RUN_DT
--- to max. of all the dates of objects that are part of the daily DAG.
+-- to earliest of the max. of all the dates of objects that are part of the daily DAG.
 --
 -- Philosophy behind this setting:
 --   As per one discussion it was decided to have SQL scripts that are granular
@@ -23,11 +23,13 @@
 --   LST_SUCCESS_DT of table CRE_LAST_SUCCESS_RUN_DT after all those are run (in 
 --   a separate SQL script - which is this).
 -- Deciding on the actual logic:
---   To accommodate that, the LST_SUCCESS_DT is set to max. of all the corresponding
---   dates from the staging data that are part of the daily-DAG.
+--   To accommodate that, the LST_SUCCESS_DT is set to the earliest of the max.
+--    of all the corresponding dates from the staging data that are part of the
+--    Daily-DAG.
 --
 --==================================================================================
 --
+/*
 ---------------------------------------------------------------------------
 -- X1. For given run-cycle, update the corresponding record, in table 
 --     CRE_LAST_SUCCESS_RUN_DT, with the CURRENT_DATE.
@@ -35,6 +37,7 @@ UPDATE  cre_last_success_run_dt
    SET  lst_success_dt = CURRENT_DATE
  WHERE  run_cd = 'DLY_ALL'
 ;
+*/
 
 -------------------------------------------------------------------------------------
 --
