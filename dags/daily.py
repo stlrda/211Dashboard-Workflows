@@ -48,7 +48,7 @@ args = {
 dag = DAG(
     dag_id='daily',
     schedule_interval='00 06 * * *', # daily dag runs at 6am GMT, pulls data for previous day's updates
-    template_searchpath=f'{AIRFLOW_HOME}/scripts/', #TODO production_path = AIRFLOW_HOME/dags/211dashboard/scripts/
+    template_searchpath=f'{AIRFLOW_HOME}/scripts/sql/', #TODO production_path = AIRFLOW_HOME/dags/211dashboard/scripts/
     default_args=args
 )
 
