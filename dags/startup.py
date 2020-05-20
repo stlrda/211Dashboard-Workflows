@@ -48,15 +48,57 @@ dag = DAG(
     default_args=args
 )
 
-create_staging_unemployment_211 = PostgresOperator(task_id='create_staging_unemployment_211', sql='crTbl_stgMoNmplymntClmsAnd211Dta.sql', dag=dag) 
-create_staging_covid_zip = PostgresOperator(task_id='create_staging_covid_zip', sql='crTbl_stgCovidUpdtZpCtyAndCnty.sql', dag=dag) 
-create_staging_covid_full = PostgresOperator(task_id='create_staging_covid_full', sql='crTbl_stgCovidDlyVizByCntyAll.sql', dag=dag)
-# create_lookup_interest_areas = PostgresOperator(task_id='create_lookup_interest_areas', sql='crTbl_lkupZpCdAndAreasOfInterest.sql', dag=dag)
-create_static_regional_funding = PostgresOperator(task_id='create_static_regional_funding', sql='crTbl_creStlRgnlFndngClnd.sql', dag=dag)
-create_success_date_covid_core_unemployment_claims = PostgresOperator(task_id='create_success_date_covid_core_unemployment_claims', sql='crTbl_creRstOthrs.sql', dag=dag)
-create_lookup_zip_tract_geo = PostgresOperator(task_id='create_lookup_zip_tract_geo', sql='crTbl_lkupZipTractGeo.sql', dag=dag)
-create_census_by_tract = PostgresOperator(task_id='create_census_by_tract', sql='crTbl_creCnssDtaByTrct.sql', dag=dag)
-#TODO edit areas of interest file to include "geoid"
+create_staging_unemployment_claims_211 = PostgresOperator(
+    task_id='create_staging_unemployment_claims_211', 
+    sql='crTbl_stgMoNmplymntClmsAnd211Dta.sql', 
+    dag=dag)
+
+create_staging_bls_unemployment_data = PostgresOperator(
+    task_id='create_staging_bls_unemployment_data', 
+    sql='crTbl_stgBLS_unemplDta.sql', 
+    dag=dag)
+
+create_staging_covid_zip = PostgresOperator(
+    task_id='create_staging_covid_zip', 
+    sql='crTbl_stgCovidUpdtZpCtyAndCnty.sql', 
+    dag=dag)
+
+create_staging_covid_full = PostgresOperator(
+    task_id='create_staging_covid_full', 
+    sql='crTbl_stgCovidDlyVizByCntyAll.sql', 
+    dag=dag)
+
+# create_lookup_interest_areas = PostgresOperator(
+#     task_id='create_lookup_interest_areas', 
+#     sql='crTbl_lkupZpCdAndAreasOfInterest.sql', 
+#     dag=dag)
+
+create_static_regional_funding = PostgresOperator(
+    task_id='create_static_regional_funding', 
+    sql='crTbl_creStlRgnlFndngClnd.sql', 
+    dag=dag)
+
+create_success_date_covid_unemployment_core_tables = PostgresOperator(
+    task_id='create_success_date_covid_unemployment_core_tables', 
+    sql='crTbl_creRstOthrs.sql', 
+    dag=dag)
+
+create_lookup_zip_tract_geo = PostgresOperator(
+    task_id='create_lookup_zip_tract_geo', 
+    sql='crTbl_lkupZipTractGeo.sql', 
+    dag=dag)
+
+create_census_by_tract = PostgresOperator(
+    task_id='create_census_by_tract', 
+    sql='crTbl_creCnssDtaByTrct.sql', 
+    dag=dag)
+
+create_core_census_views = PostgresOperator(
+    task_id='create_core_census_views', 
+    sql='crVu_creVuCnssDta.sql', 
+    dag=dag)
+
+#TODO decide if we are keeping this (any use for it in manual dag???)
 # load_areas_of_interest = PythonOperator(
 #     task_id='load_areas_of_interest',
 #     python_callable=load_file,
@@ -67,6 +109,7 @@ create_census_by_tract = PostgresOperator(task_id='create_census_by_tract', sql=
 #         'nullstr': ''
 #     },
 #     dag=dag)
+
 load_zip_tract_geo = PythonOperator(
     task_id='load_zip_tract_geo',
     python_callable=load_file,
@@ -77,6 +120,7 @@ load_zip_tract_geo = PythonOperator(
         'nullstr': ''
     },
     dag=dag)
+
 load_static_regional_funding = PythonOperator(
     task_id='load_static_regional_funding',
     python_callable=load_file,
@@ -87,6 +131,7 @@ load_static_regional_funding = PythonOperator(
         'nullstr': ''
     },
     dag=dag)
+
 load_census_by_tract = PythonOperator(
     task_id='load_census_by_tract',
     python_callable=load_file,
@@ -98,18 +143,97 @@ load_census_by_tract = PythonOperator(
     },
     dag=dag)
 
+''' 
+Define operators for "backfill" of 
+"static" unemployment data from BLS
+
+Incremental data loads will continue monthly
+(see monthly DAG)
+
+'''
+load_bls_unemployment_2019_staging = PythonOperator(
+    task_id='load_bls_unemployment_2019_staging',
+    python_callable=load_file,
+    op_kwargs={
+        'filename': 'unemployment_stats_2019.csv',
+        'table_name': 'stg_bls_unemployment_data_2019',
+        'sep': '|',
+        'nullstr': ''
+    },
+    dag=dag)
+
+unemployment_2019_data_staging_to_core = PostgresOperator(
+    task_id='unemployment_2019_data_staging_to_core', 
+    sql='dtaMgrtn_unemplStats_strtup.sql', 
+    dag=dag)
+
+update_monthly_timestamp_startup = PostgresOperator(
+    task_id='update_monthly_timestamp_startup', 
+    sql='setLstSccssflRnDt_mnthlyAll.sql', 
+    dag=dag) 
+
+''' 
+Define operators for "backfill" of older 
+unemployment claims data from data.mo.gov
+
+Incremental data loads will continue weekly via API
+(see weekly DAG)
+
+'''
+scrape_unemployment_claims_full = PythonOperator(
+    task_id='scrape_unemployment_claims_full',
+    python_callable=scrape_file,
+    op_kwargs={
+        'url': 'https://data.mo.gov/api/views/qet9-8yam/rows.csv?accessType=DOWNLOAD',
+        'filename': 'mo_unemployment_claims.csv',
+        'filters': None,
+        'nullstr': ''
+    },
+    dag=dag)
+
+load_unemployment_claims_full_staging = PythonOperator(
+    task_id='load_unemployment_claims_full_staging',
+    python_callable=load_file,
+    op_kwargs={
+        'filename': 'mo_unemployment_claims.csv',
+        'table_name': 'stg_mo_unemployment_clms',
+        'sep': ',',
+        'nullstr': ''
+    },
+    dag=dag)
+
+startup_unemployment_claims_staging_to_core = PostgresOperator(
+    task_id='startup_unemployment_claims_staging_to_core', 
+    sql='dtaMgrtn_unemplClms_wkly.sql', 
+    dag=dag) 
+
+update_weekly_timestamp_startup = PostgresOperator(
+    task_id='update_weekly_timestamp_startup', 
+    sql='setLstSccssflRnDt_wklyAll.sql', 
+    dag=dag) 
+
 
 # Utilize "chain" function for more complex relationships among dag operators
 chain(
-    create_staging_unemployment_211,
-    [create_staging_covid_zip,create_staging_covid_full],
-    # create_lookup_interest_areas,
-    create_static_regional_funding,
-    create_success_date_covid_core_unemployment_claims,
-    create_lookup_zip_tract_geo,
-    create_census_by_tract,
-    # load_areas_of_interest,
-    load_zip_tract_geo,
-    load_static_regional_funding,
-    load_census_by_tract
+    [create_staging_unemployment_claims_211,  # create tables first
+        create_staging_bls_unemployment_data,
+        create_staging_covid_zip,
+        create_staging_covid_full,
+        create_static_regional_funding,
+        create_success_date_covid_unemployment_core_tables,
+        create_lookup_zip_tract_geo,
+        create_census_by_tract,
+        create_core_census_views],
+    load_bls_unemployment_2019_staging,  # begin loading unemployment 2019 data
+    unemployment_2019_data_staging_to_core,
+    update_monthly_timestamp_startup,
+    [load_zip_tract_geo,  # load other "static" data tables
+        load_static_regional_funding,
+        load_census_by_tract],
+    scrape_unemployment_claims_full,  # scrape unemployment claims data
+    load_unemployment_claims_full_staging,  # begin loading unemployment claims
+    startup_unemployment_claims_staging_to_core,
+    update_weekly_timestamp_startup
+    # create_lookup_interest_areas
+    # load_areas_of_interest
 )
