@@ -38,11 +38,13 @@ AIRFLOW_HOME = os.environ['AIRFLOW_HOME']
 
 args = {
     'owner': '211dashboard',
-    'start_date': datetime(2020, 5, 21),  # change this
+    'start_date': datetime(2020, 5, 20),  # change this
     'concurrency': 1,
     'retries': 0,
     'depends_on_past': False,
-    'catchup': False
+    'catchup': False,
+    'email': ['keenan.berry@daugherty.com'],
+    'email_on_failure': True
 }
 
 dag = DAG(
@@ -202,11 +204,15 @@ update_daily_timestamp = PostgresOperator(
 ''' Set relationships among Operators in Daily DAG. '''
 
 chain(
-    [scrape_covid_county_full, scrape_covid_zip_stl_city, scrape_covid_zip_stl_county],
-    truncate_daily_staging_tables,
-    [load_covid_county_full_staging, load_covid_zip_stl_city_staging, load_covid_zip_stl_county_staging, load_211_staging],
-    covid_staging_to_core,
-    # load_211_staging
-    # 211_staging_to_core # (not ready yet)
+    [scrape_covid_county_full, # scrape data
+        scrape_covid_zip_stl_city, 
+        scrape_covid_zip_stl_county],  
+    truncate_daily_staging_tables,  # truncate staging tables
+    [load_covid_county_full_staging,  # load data
+        load_covid_zip_stl_city_staging, 
+        load_covid_zip_stl_county_staging, 
+        load_211_staging], 
+    covid_staging_to_core,  # staging --> core
+    # 211_staging_to_core #NOTE not ready yet
     update_daily_timestamp
 )
