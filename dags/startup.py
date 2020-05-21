@@ -34,11 +34,11 @@ AIRFLOW_HOME = os.environ['AIRFLOW_HOME']
 
 args = {
     'owner': '211dashboard',
-    'start_date': datetime(2020, 5, 19),
+    'start_date': datetime(2020, 5, 21),
     'concurrency': 1,
     'retries': 0,
     'depends_on_past': False,
-    'catchup': False
+    'catchup': False,
 }
 
 dag = DAG(
@@ -215,7 +215,7 @@ update_weekly_timestamp_startup = PostgresOperator(
 
 # Utilize "chain" function for more complex relationships among dag operators
 chain(
-    [create_staging_unemployment_claims_211,  # create tables first
+    [create_staging_unemployment_claims_211,  # create tables
         create_staging_bls_unemployment_data,
         create_staging_covid_zip,
         create_staging_covid_full,

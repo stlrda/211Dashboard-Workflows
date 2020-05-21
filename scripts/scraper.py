@@ -44,7 +44,7 @@ class Scraper:
     
     def __archive_file(self, curr_filename):
         """ 
-        Archives 'current' file data in S3.
+        Archives 'current' file data in S3 to archive/ dir.
 
         Parameters
         ----------
@@ -52,13 +52,15 @@ class Scraper:
             file name + '_current' + extension
         
         """
-        archived_filename = curr_filename.replace('_current', '_previous')
+        archive_dir = 'archive/'
+        archive_filename = curr_filename.replace('_current', '_previous')
+        archive_path = archive_dir + archive_filename
         try:
             copy_source = {
                 'Bucket': self.bucket_name,
                 'Key': curr_filename
             }
-            self.s3_conn.meta.client.copy(copy_source, self.bucket_name, archived_filename)
+            self.s3_conn.meta.client.copy(copy_source, self.bucket_name, archive_path)
         except ClientError as e:
             logger.error(e)
 
