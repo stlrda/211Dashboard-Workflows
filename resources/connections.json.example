@@ -6,18 +6,18 @@
         "Conn Id": "my_s3_conn",
         "Conn Type": "S3",
         "Host": "",
-        "Schema": "",
-        "Login": "",
-        "Password": "",
+        "Schema": "bucket-name",
+        "Login": "aws_access_key_id",
+        "Password": "aws_secret_access_key",
         "Port": "",
-        "Extra": {"aws_access_key_id":"", "aws_secret_access_key": ""}
+        "Extra": {"region_name": "us-east-1"}
     },
 
     {
         "Conn Id": "postgres_default",
         "Conn Type": "postgres",
         "Host": "",
-        "Schema": "",
+        "Schema": "db_name",
         "Login": "",
         "Password": "",
         "Port": "",
