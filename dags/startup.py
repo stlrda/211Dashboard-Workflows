@@ -98,6 +98,11 @@ create_core_census_views = PostgresOperator(
     sql='crVu_creVuCnssDta.sql', 
     dag=dag)
 
+grant_read_permissions = PostgresOperator(
+    task_id='grant_read_permissions', 
+    sql='usr_dataviz_grnts.sql', 
+    dag=dag)
+
 #TODO decide if we are keeping this (any use for it in manual dag???)
 # load_areas_of_interest = PythonOperator(
 #     task_id='load_areas_of_interest',
@@ -224,16 +229,17 @@ chain(
         create_lookup_zip_tract_geo,
         create_census_by_tract,
         create_core_census_views],
-    load_bls_unemployment_2019_staging,  # begin loading unemployment 2019 data
-    unemployment_2019_data_staging_to_core,
-    update_monthly_timestamp_startup,
-    [load_zip_tract_geo,  # load other "static" data tables
+    grant_read_permissions,
+    [load_zip_tract_geo,  # load "static" data tables
         load_static_regional_funding,
         load_census_by_tract],
-    scrape_unemployment_claims_full,  # scrape unemployment claims data
-    load_unemployment_claims_full_staging,  # begin loading unemployment claims
-    startup_unemployment_claims_staging_to_core,
-    update_weekly_timestamp_startup
+    scrape_unemployment_claims_full,  # begin loading of all unemployment data
+    [load_bls_unemployment_2019_staging,
+        load_unemployment_claims_full_staging],
+    [unemployment_2019_data_staging_to_core,
+        startup_unemployment_claims_staging_to_core],
+    [update_monthly_timestamp_startup,
+        update_weekly_timestamp_startup]
     # create_lookup_interest_areas
     # load_areas_of_interest
 )
