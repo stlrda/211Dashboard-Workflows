@@ -33,7 +33,7 @@ def scrape_transform(**kwargs):
     s = Scraper(kwargs['url'], Config)
     s.connect_s3_sink()
     s.url_transform_to_s3(filename=kwargs['filename'],
-                          transform_funct=kwargs['transformer'], 
+                          transformer=kwargs['transformer'], 
                           sep=kwargs['sep'])
 
 

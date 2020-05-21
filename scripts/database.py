@@ -2,7 +2,7 @@
 # https://www.mydatahack.com/how-to-bulk-load-data-into-postgresql-with-python/
 
 import sys
-from loguru import logger
+import logging
 import psycopg2
 import boto3
 
@@ -33,10 +33,10 @@ class Database:
                                              port=self.port,
                                              dbname=self.dbname)
             except psycopg2.DatabaseError as e:
-                logger.error(e)
+                logging.error(e)
                 sys.exit()
             finally:
-                logger.info('Database connection opened successfully.')
+                logging.info('Database connection opened successfully.')
 
     def connect_s3_source(self):
         """Connect to AWS s3 storage."""
@@ -49,21 +49,21 @@ class Database:
                     aws_secret_access_key=self.aws_secret_access_key
                 )
             except ClientError as e:
-                logger.error(e)
+                logging.error(e)
                 sys.exit()
             finally:
-                logger.info('Successfully established AWS s3 connection.')
+                logging.info('Successfully established AWS s3 connection.')
 
     def __check_for_current(self, filename):
         file_split = filename.split('.')
         file_split[0] = file_split[0] + '_current'
         curr_filename = '.'.join(file_split)
         try:
-            self.s3_conn.head_object(
+            self.s3_conn.meta.client.head_object(
                 Bucket=self.bucket_name,
                 Key=curr_filename
             )
-        except ClientError:
+        except:
             curr_filename = filename
         return curr_filename
 
@@ -92,15 +92,15 @@ class Database:
             sql = f"copy {table_name} from STDIN CSV HEADER QUOTE '\"' DELIMITER AS '{sep}' NULL '{nullstr}'"
             cur.copy_expert(sql, body)
             cur.execute("commit;")
-            logger.info(f"Loaded data into {table_name}")
+            logging.info(f"Loaded data into {table_name}")
         except Exception as e:
-            logger.error(e)
+            logging.error(e)
             sys.exit()
 
     def close(self):
         """Close the database client connection."""
         if self.conn is None:
-            logger.info('No connection to close.')
+            logging.info('No connection to close.')
         else:
             self.conn.close()
-            logger.info('Postgres connection closed.')
+            logging.info('Postgres connection closed.')

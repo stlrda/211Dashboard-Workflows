@@ -1,5 +1,5 @@
 import sys
-from loguru import logger
+import logging
 import requests
 import boto3
 import pandas as pd
@@ -31,10 +31,10 @@ class Scraper:
                     aws_secret_access_key=self.aws_secret_access_key
                 )
             except ClientError as e:
-                logger.error(e)
+                logging.error(e)
                 sys.exit()
             finally:
-                logger.info('Successfully established AWS s3 connection.')
+                logging.info('Successfully established AWS s3 connection.')
 
     def __rename_file(self, filename):
         """ Add '_current' to filename. """
@@ -61,8 +61,8 @@ class Scraper:
                 'Key': curr_filename
             }
             self.s3_conn.meta.client.copy(copy_source, self.bucket_name, archive_path)
-        except ClientError as e:
-            logger.error(e)
+        except Exception as e:
+            logging.error(e)
 
     def url_to_s3(self, filename, filters=None, nullstr=''):
         """
@@ -91,7 +91,7 @@ class Scraper:
             df = pd.read_csv(self.url)
             # filter df
             for key, values in filters.items():
-                logger.info(f'Filtering "{key}" column...')
+                logging.info(f'Filtering "{key}" column...')
                 df = df[df[key].isin(values)]
             # write df to csv
             csv_buf = StringIO()
@@ -106,7 +106,7 @@ class Scraper:
         # create s3 object
         obj = self.s3_conn.Object(self.bucket_name, filename)
         obj.put(Body=content)
-        logger.info(f'{filename} uploaded to s3 bucket.')
+        logging.info(f'{filename} uploaded to s3 bucket.')
 
     def api_to_s3(self, filename, table_name, limit=2000):
         """
@@ -129,7 +129,7 @@ class Scraper:
                              self.api_user_email,
                              self.api_user_pwd)
         # get records
-        logger.info(f'Fetching data from {self.url} API.')
+        logging.info(f'Fetching data from {self.url} API.')
         records = api_client.get(table_name, limit=limit)
         df = pd.DataFrame.from_records(records)
         
@@ -146,14 +146,14 @@ class Scraper:
         # create s3 object
         obj = self.s3_conn.Object(self.bucket_name, filename)
         obj.put(Body=content)
-        logger.info(f'{filename} uploaded to s3 bucket.')
+        logging.info(f'{filename} uploaded to s3 bucket.')
 
-    def url_transform_to_s3(self, filename, transform_func, sep='|'):
+    def url_transform_to_s3(self, filename, transformer, sep='|'):
         """
         Description
 
         """
-        df = transform_func(self.url)
+        df = transformer(self.url)
         csv_buf = StringIO()
         df.to_csv(csv_buf, sep=sep, header=True, index=False)
         csv_buf.seek(0)
@@ -166,4 +166,4 @@ class Scraper:
         # create s3 object
         obj = self.s3_conn.Object(self.bucket_name, filename)
         obj.put(Body=content)
-        logger.info(f'{filename} uploaded to s3 bucket.')
+        logging.info(f'{filename} uploaded to s3 bucket.')
