@@ -134,4 +134,4 @@ UPDATE  lkup_zip_tract_geoid    g
 --    The data was exported and corresponding file in S3 (at the file path
 --    "s3://uw211dashboard-workbucket/zip_tract_geoid.csv") was replaced with the
 --    new data (that now has data for the two new flags).
-
+*/
