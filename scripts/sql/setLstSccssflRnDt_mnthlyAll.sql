@@ -26,10 +26,13 @@
 
 UPDATE  cre_last_success_run_dt
    SET  lst_success_dt = (SELECT  MIN(mx_prd_end_dt)
-                            FROM (SELECT  MAX(month_last_date)  mx_prd_end_dt  FROM stg_bls_unemployment_data_curr
+                            FROM (SELECT  COALESCE(MAX(month_last_date), '2019-12-31')  mx_prd_end_dt  FROM stg_bls_unemployment_data_curr
 --                                UNION ALL
                                  )    c
                          )
  WHERE  run_cd = 'MNTHLY_ALL'
 ;
 
+-- edit: 5/22/2020 (Keenan Berry)
+-- Added coalesce statement to deal with "startup" conditions in which _curr table hasn't been populated yet
+-- Last date (or max date) in 2019 table is '2019-12-31'
