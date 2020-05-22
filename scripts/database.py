@@ -83,16 +83,16 @@ class Database:
             string which DB should interpret as NULL values
 
         """
-        
         try:
             filename = self.__check_for_current(filename)
+            logging.info(f'Using {filename} for database load.')
             cur = self.conn.cursor()
             obj = self.s3_conn.Object(self.bucket_name, filename)
             body = obj.get()['Body']
             sql = f"copy {table_name} from STDIN CSV HEADER QUOTE '\"' DELIMITER AS '{sep}' NULL '{nullstr}'"
             cur.copy_expert(sql, body)
             cur.execute("commit;")
-            logging.info(f"Loaded data into {table_name}")
+            logging.info(f"Loaded data into {table_name}.")
         except Exception as e:
             logging.error(e)
             sys.exit()

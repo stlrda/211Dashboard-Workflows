@@ -61,6 +61,7 @@ class Scraper:
                 'Key': curr_filename
             }
             self.s3_conn.meta.client.copy(copy_source, self.bucket_name, archive_path)
+            logging.info(f'{archive_filename} archived in s3 bucket.')
         except Exception as e:
             logging.error(e)
 
@@ -83,6 +84,7 @@ class Scraper:
 
         """
         
+        logging.info(f'Fetching data from {self.url}.')
         if filters is None:
             # download file from web
             content = requests.get(self.url).content
@@ -154,6 +156,7 @@ class Scraper:
 
         """
         df = transformer(self.url)
+        logging.info(f'Transformed data found at {self.url}.')
         csv_buf = StringIO()
         df.to_csv(csv_buf, sep=sep, header=True, index=False)
         csv_buf.seek(0)

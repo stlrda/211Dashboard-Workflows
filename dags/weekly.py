@@ -28,13 +28,13 @@ AIRFLOW_HOME = os.environ['AIRFLOW_HOME']
 
 args = {
     'owner': '211dashboard',
-    'start_date': datetime(2020, 5, 20),  # change this
+    'start_date': datetime(2020, 5, 22),  # change this
     'concurrency': 1,
     'retries': 0,
     'depends_on_past': False,
-    'catchup': False,
-    'email': ['keenan.berry@daugherty.com'],
-    'email_on_failure': True
+    'catchup': False #,
+    #'email': ['keenan.berry@daugherty.com'], #TODO configure email option
+    #'email_on_failure': True
 }
 
 dag = DAG(
