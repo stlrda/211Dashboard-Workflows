@@ -6,10 +6,10 @@ from airflow.operators.postgres_operator import PostgresOperator
 from airflow.utils.helpers import chain
 
 sys.path.append('.')
-from scripts.callables import scrape_transform, load_file
-from scripts.transformers import transform_unemployment_stats
-# from dags.211dashboard.scripts.callables import scrape_transform, load_file
-# from dags.211dashboard.scripts.transformers import transform_unemployment_stats
+# from scripts.callables import scrape_transform, load_file
+# from scripts.transformers import transform_unemployment_stats
+from dags.211dashboard.scripts.callables import scrape_transform, load_file
+from dags.211dashboard.scripts.transformers import transform_unemployment_stats
 
 
 '''
@@ -25,8 +25,8 @@ Monthly DAG
 '''
 
 AIRFLOW_HOME = os.environ['AIRFLOW_HOME']
-SEARCH_PATH = f'{AIRFLOW_HOME}/scripts/sql/'  # development
-# SEARCH_PATH = f'{AIRFLOW_HOME}/dags/211dashboard/scripts/sql/'  # production
+# SEARCH_PATH = f'{AIRFLOW_HOME}/scripts/sql/'  # development
+SEARCH_PATH = f'{AIRFLOW_HOME}/dags/211dashboard/scripts/sql/'  # production
 
 args = {
     'owner': '211dashboard',
