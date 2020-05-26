@@ -6,6 +6,15 @@ import re
 import requests
 import datetime
 
+"""
+Extra functions used to transform data.
+
+Name of transformer functions in use:
+
+    transform_unemployment_stats
+
+
+"""
 
 month_dict = {
     'Jan' : 1,

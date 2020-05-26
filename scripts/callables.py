@@ -5,9 +5,7 @@ from scripts.database import Database
 # define python functions for airflow Operators
 
 def scrape_file(**kwargs):
-    '''
-    Description here
-    '''
+    '''Calls "url_to_s3" method of Scraper class'''
     s = Scraper(kwargs['url'], Config)
     s.connect_s3_sink()
     s.url_to_s3(filename=kwargs['filename'],
@@ -16,9 +14,7 @@ def scrape_file(**kwargs):
 
 
 def scrape_api(**kwargs):
-    '''
-    Description here
-    '''
+    '''Calls "api_to_s3" method of Scraper class.'''
     s = Scraper(kwargs['url'], Config)
     s.connect_s3_sink()
     s.api_to_s3(filename=kwargs['filename'],
@@ -27,9 +23,7 @@ def scrape_api(**kwargs):
 
 
 def scrape_transform(**kwargs):
-    '''
-    Description here
-    '''
+    '''Calls "url_transform_to_s3" method of Scraper class'''
     s = Scraper(kwargs['url'], Config)
     s.connect_s3_sink()
     s.url_transform_to_s3(filename=kwargs['filename'],
@@ -38,10 +32,8 @@ def scrape_transform(**kwargs):
 
 
 def load_file(**kwargs):
-    '''
-    Description here
-    table must be truncated
-    '''
+    '''Calls "csv_to_table" method of Database class'''
+    #NOTE table_name must be truncated before
     db = Database(Config)
     db.connect()
     db.connect_s3_source()

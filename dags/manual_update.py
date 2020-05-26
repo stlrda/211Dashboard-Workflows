@@ -8,8 +8,7 @@ from airflow.utils.helpers import chain
 
 sys.path.append('.')
 from scripts.callables import scrape_file, load_file
-#TODO for production environment change module paths -- such as...
-#from dags.211Dashboard.scripts.callables import scrape_file, load_file, scrape_api
+# from dags.211dashboard.scripts.callables import scrape_file, load_file
 
 
 '''
@@ -32,7 +31,8 @@ More info to come...
 '''
 
 AIRFLOW_HOME = os.environ['AIRFLOW_HOME']
-#NOTE: AIRFLOW_HOME variable will be different in production environment
+SEARCH_PATH = f'{AIRFLOW_HOME}/scripts/sql/'  # development
+# SEARCH_PATH = f'{AIRFLOW_HOME}/dags/211dashboard/scripts/sql/'  # production
 
 args = {
     'owner': '211dashboard',
@@ -44,9 +44,9 @@ args = {
 }
 
 dag = DAG(
-    dag_id='manual',
+    dag_id='211dash_manual_update',
     schedule_interval='@once',
-    template_searchpath=f'{AIRFLOW_HOME}/scripts/sql/', #TODO production_path = AIRFLOW_HOME/dags/211dashboard/scripts/
+    template_searchpath=SEARCH_PATH,
     default_args=args
 )
 
