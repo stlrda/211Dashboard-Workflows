@@ -7,7 +7,7 @@ from io import StringIO
 import csv
 
 class Scraper:
-    """ Web scraping and file writing class. """
+    """ Web scraper and data transformer class. """
 
     def __init__(self, url, config):
         self.url = url
@@ -37,14 +37,14 @@ class Scraper:
                 logging.info('Successfully established AWS s3 connection.')
 
     def __rename_file(self, filename):
-        """ Add '_current' to filename. """
+        """ Add "_current" to filename. """
         file_split = filename.split('.')
         file_split[0] = file_split[0]+'_current'
         return '.'.join(file_split)
     
     def __archive_file(self, curr_filename):
         """ 
-        Archives 'current' file data in S3 to archive/ dir.
+        Archives "current" file in S3 to "archive/" dir.
 
         Parameters
         ----------
@@ -152,7 +152,17 @@ class Scraper:
 
     def url_transform_to_s3(self, filename, transformer, sep='|'):
         """
-        Description
+        Calls a transformer function on data file found at url.
+        Then uploads data file to s3.
+
+        Parameters
+        ----------
+        filename : str 
+            file name with extension
+        transformer : function
+            function called to transform data
+        sep : str
+            csv file delimiter
 
         """
         df = transformer(self.url)

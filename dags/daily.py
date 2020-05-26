@@ -5,11 +5,9 @@ from airflow.operators.python_operator import PythonOperator
 from airflow.operators.postgres_operator import PostgresOperator
 from airflow.utils.helpers import chain
 
-# add parent folder
 sys.path.append('.')
 from scripts.callables import scrape_file, load_file
-#TODO for production environment change module paths -- such as...
-#from dags.211Dashboard.scripts.callables import scrape_file, load_file
+# from dags.211dashboard.scripts.callables import scrape_file, load_file
 
 '''
 Daily DAG
@@ -31,14 +29,14 @@ Daily DAG
 
 '''
 
-COVID_BASE_URL = 'https://raw.githubusercontent.com/slu-openGIS/covid_daily_viz/master/data'
 AIRFLOW_HOME = os.environ['AIRFLOW_HOME']
-#NOTE: AIRFLOW_HOME variable will be different in production environment
-
+SEARCH_PATH = f'{AIRFLOW_HOME}/scripts/sql/'  # development
+# SEARCH_PATH = f'{AIRFLOW_HOME}/dags/211dashboard/scripts/sql/'  # production
+COVID_BASE_URL = 'https://raw.githubusercontent.com/slu-openGIS/covid_daily_viz/master/data'
 
 args = {
     'owner': '211dashboard',
-    'start_date': datetime(2020, 5, 22),  # change this
+    'start_date': datetime(2020, 5, 25),
     'concurrency': 1,
     'retries': 0,
     'depends_on_past': False,
@@ -48,9 +46,9 @@ args = {
 }
 
 dag = DAG(
-    dag_id='daily',
-    schedule_interval='00 06 * * *', # daily dag runs at 6am GMT, pulls data for previous day's updates
-    template_searchpath=f'{AIRFLOW_HOME}/scripts/sql/', #TODO production_path = AIRFLOW_HOME/dags/211dashboard/scripts/
+    dag_id='211dash_daily',
+    schedule_interval='00 01 * * *',  # runs at 1am CST
+    template_searchpath=SEARCH_PATH,
     default_args=args
 )
 

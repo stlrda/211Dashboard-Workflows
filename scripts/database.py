@@ -1,6 +1,3 @@
-# code found here: https://hackersandslackers.com/psycopg2-postgres-python/
-# https://www.mydatahack.com/how-to-bulk-load-data-into-postgresql-with-python/
-
 import sys
 import logging
 import psycopg2
@@ -8,7 +5,7 @@ import boto3
 
 
 class Database:
-    """Project Database class."""
+    """Postgres database class."""
 
     def __init__(self, config):
         self.host = config.DATABASE_HOST
@@ -55,6 +52,15 @@ class Database:
                 logging.info('Successfully established AWS s3 connection.')
 
     def __check_for_current(self, filename):
+        """
+        Private method checks to see if "{filename}_current" is in s3 bucket
+        If file not in bucket, "{filename}" is used.
+        
+        Parameters
+        ----------
+        filename : str 
+        """
+        
         file_split = filename.split('.')
         file_split[0] = file_split[0] + '_current'
         curr_filename = '.'.join(file_split)

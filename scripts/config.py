@@ -1,10 +1,7 @@
-"""Load config from environment variables."""
-#from os import environ
-#from dotenv import load_dotenv
 from airflow.hooks.base_hook import BaseHook
 import json
 
-#load_dotenv()
+"""Load sink/source configurations from airflow connections."""
 
 class Config:
     """Project Configuration class."""

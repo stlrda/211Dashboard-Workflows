@@ -5,12 +5,12 @@ from airflow.operators.python_operator import PythonOperator
 from airflow.operators.postgres_operator import PostgresOperator
 from airflow.utils.helpers import chain
 
-# add parent folder
 sys.path.append('.')
 from scripts.callables import scrape_transform, load_file
 from scripts.transformers import transform_unemployment_stats
-#TODO for production environment change module paths -- such as...
-#from dags.211Dashboard.scripts.callables import scrape_file, load_file, scrape_api
+# from dags.211dashboard.scripts.callables import scrape_transform, load_file
+# from dags.211dashboard.scripts.transformers import transform_unemployment_stats
+
 
 '''
 Monthly DAG
@@ -25,11 +25,12 @@ Monthly DAG
 '''
 
 AIRFLOW_HOME = os.environ['AIRFLOW_HOME']
-#NOTE: AIRFLOW_HOME variable will be different in production environment
+SEARCH_PATH = f'{AIRFLOW_HOME}/scripts/sql/'  # development
+# SEARCH_PATH = f'{AIRFLOW_HOME}/dags/211dashboard/scripts/sql/'  # production
 
 args = {
     'owner': '211dashboard',
-    'start_date': datetime(2020, 5, 22),  # change this
+    'start_date': datetime(2020, 5, 22),
     'concurrency': 1,
     'retries': 0,
     'depends_on_past': False,
@@ -39,15 +40,15 @@ args = {
 }
 
 dag = DAG(
-    dag_id='monthly',
+    dag_id='211dash_monthly',
     schedule_interval='@monthly',
-    template_searchpath=f'{AIRFLOW_HOME}/scripts/sql/', #TODO production_path = AIRFLOW_HOME/dags/211dashboard/scripts/
+    template_searchpath=SEARCH_PATH,
     default_args=args
 )
 
 ''' Define monthly airflow operators. '''
 
-# file @ url contains latest 14 months of data
+# file at url contains latest 14 months of data
 scrape_unemployment_stats = PythonOperator(
     task_id='scrape_unemployment_stats',
     python_callable=scrape_transform,

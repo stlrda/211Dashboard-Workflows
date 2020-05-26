@@ -8,8 +8,7 @@ from airflow.utils.helpers import chain
 
 sys.path.append('.')
 from scripts.callables import scrape_file, load_file, scrape_api
-#TODO for production environment change module paths -- such as...
-#from dags.211Dashboard.scripts.callables import scrape_file, load_file, scrape_api
+# from dags.211dashboard.scripts.callables import scrape_file, load_file, scrape_api
 
 
 '''
@@ -30,11 +29,12 @@ Startup Configuration DAG
 '''
 
 AIRFLOW_HOME = os.environ['AIRFLOW_HOME']
-#NOTE: AIRFLOW_HOME variable will be different in production environment
+SEARCH_PATH = f'{AIRFLOW_HOME}/scripts/sql/'  # development
+# SEARCH_PATH = f'{AIRFLOW_HOME}/dags/211dashboard/scripts/sql/'  # production
 
 args = {
     'owner': '211dashboard',
-    'start_date': datetime(2020, 5, 22),
+    'start_date': datetime(2020, 5, 25),
     'concurrency': 1,
     'retries': 0,
     'depends_on_past': False,
@@ -42,9 +42,9 @@ args = {
 }
 
 dag = DAG(
-    dag_id='startup',
+    dag_id='211dash_startup',
     schedule_interval='@once',
-    template_searchpath=f'{AIRFLOW_HOME}/scripts/sql/', #TODO production_path = AIRFLOW_HOME/dags/211dashboard/scripts/
+    template_searchpath=SEARCH_PATH,
     default_args=args
 )
 
@@ -101,6 +101,11 @@ create_core_census_views = PostgresOperator(
 grant_read_permissions = PostgresOperator(
     task_id='grant_read_permissions', 
     sql='usr_dataviz_grnts.sql', 
+    dag=dag)
+
+create_dataviz_functions = PostgresOperator(
+    task_id='create_dataviz_functions', 
+    sql='crFnctns_dataviz.sql', 
     dag=dag)
 
 #TODO decide if we are keeping this (any use for it in manual dag???)
@@ -230,6 +235,7 @@ chain(
         create_census_by_tract,
         create_core_census_views],
     grant_read_permissions,
+    create_dataviz_functions,
     [load_zip_tract_geo,  # load "static" data tables
         load_static_regional_funding,
         load_census_by_tract],
@@ -240,6 +246,7 @@ chain(
         startup_unemployment_claims_staging_to_core],
     [update_monthly_timestamp_startup,
         update_weekly_timestamp_startup]
+    #TODO
     # create_lookup_interest_areas
     # load_areas_of_interest
 )
