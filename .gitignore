@@ -1,0 +1,19 @@
+# py files and environments
+.env
+scripts/__pycache__
+
+# testing scripts
+test.py
+scripts/funding_formatter.py
+cleanup.sql
+dags/connect.py
+
+# secrets configuration and admin setup
+resources/connections.json
+scripts/create_connections.py
+
+# local airflow tests
+Dockerfile
+Makefile
+config
+script
