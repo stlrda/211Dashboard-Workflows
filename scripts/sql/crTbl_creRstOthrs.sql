@@ -114,6 +114,8 @@ The data for this table was consolidated from the staging tables - STG_COVID_DLY
 
 The data in STG_COVID_ZIP_STL_CounTY and ..._CiTY are (at least for present) limited only to CASE COUNT and RATE. [These data may get expanded to other attributes covered in STG_COVID_DLY_VIZ_CNTY_ALL.
 
+The RATEs (CASE_ and MORTALITY_) are per 1000; case_FATALITY_RATE is fetalities per case (in other words, it is proportion of fatalities). The AVeraGes (CASE_ and DEATH_) are over the past week.
+
 These tables get daily data feeds from the source (staging) tables.'
 ;
 
