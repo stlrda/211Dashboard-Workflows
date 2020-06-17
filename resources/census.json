@@ -1,0 +1,139 @@
+{
+    "age_and_sex": {
+        "columns": ["Estimate!!Total!!Total population!!SELECTED AGE CATEGORIES!!65 years and over"]
+    },
+    "disability_characteristics": {
+        "equation": {
+            "columns": [
+                "Estimate!!With a disability!!Subject!!SEX!!Male",
+                "Estimate!!With a disability!!Subject!!SEX!!Female"
+            ],
+            "operation": "SUM",
+            "result": "Estimate Total Population With a disability"
+        }
+    },
+    "educational_attainment": {
+        "columns": ["Estimate!!Total"],
+        "rename": {"Estimate!!Total": "Estimate Total Population 25 years and over"},
+        "equation": {
+            "columns": [
+                "Estimate!!Total!!No schooling completed",
+                "Estimate!!Total!!Nursery school",
+                "Estimate!!Total!!Kindergarten",
+                "Estimate!!Total!!1st grade",
+                "Estimate!!Total!!2nd grade",
+                "Estimate!!Total!!3rd grade",
+                "Estimate!!Total!!4th grade",
+                "Estimate!!Total!!5th grade",
+                "Estimate!!Total!!6th grade",
+                "Estimate!!Total!!7th grade",
+                "Estimate!!Total!!8th grade",
+                "Estimate!!Total!!9th grade",
+                "Estimate!!Total!!10th grade",
+                "Estimate!!Total!!11th grade",
+                "Estimate!!Total!!12th grade, no diploma",
+                "Estimate!!Total!!Regular high school diploma",
+                "Estimate!!Total!!GED or alternative credential"
+            ],
+            "operation": "SUM",
+            "result": "Estimate Total Pop 25 and over with high school equivalency or less"
+        }
+    },
+    "employment_status": {
+        "columns": [
+            "Estimate!!Total!!Population 16 years and over",
+            "Estimate!!Labor Force Participation Rate!!Population 16 years and over",
+            "Estimate!!Employment/Population Ratio!!Population 16 years and over",
+            "Estimate!!Unemployment rate!!Population 16 years and over"
+        ]
+    },
+    "health_insurance_coverage_status": {
+        "equation": {
+            "columns": [
+                "Estimate!!Total!!Under 19 years!!No health insurance coverage",
+                "Estimate!!Total!!19 to 34 years!!No health insurance coverage",
+                "Estimate!!Total!!35 to 64 years!!No health insurance coverage",
+                "Estimate!!Total!!65 years and over!!No health insurance coverage"
+            ],
+            "operation": "SUM",
+            "result": "Estime Total Population No health insurance coverage"
+        }
+    },
+    "hispanic_or_latino_origin": {
+        "columns": [
+            "Estimate!!Total!!Not Hispanic or Latino",
+            "Estimate!!Total!!Hispanic or Latino"
+        ]
+    },
+    "housing_tenure": {
+        "columns": [
+            "Estimate!!Total",
+            "Estimate!!Total!!Owner occupied",
+            "Estimate!!Total!!Renter occupied"
+        ],
+        "rename": {"Estimate!!Total": "Estimate Total Households"}
+    },
+    "income_inequality": {
+        "columns": ["Estimate!!Gini Index"]
+    },
+    "internet_subscriptions": {
+        "columns": ["Estimate!!Total!!No Internet access"]
+    },
+    "means_of_transportation_to_work": {
+        "columns": [
+            "Estimate!!Total",
+            "Estimate!!Total!!Public transportation (excluding taxicab)"
+        ],
+        "rename": {"Estimate!!Total": "Estimate Total Population Commute to work"}
+    },
+    "median_household_income": {
+        "stringmatch": {
+            "string" : "Estimate!!Median household income in the past 12 months",
+            "operation": "startswith"
+        }
+    },
+    "per_capita_income": {
+        "stringmatch": {
+            "string" : "Estimate!!Per capita income in the past 12 months",
+            "operation": "startswith"
+        }
+    },
+    "poverty_status": {
+        "columns": [
+            "Estimate!!Total!!Population for whom poverty status is determined",
+            "Estimate!!Below poverty level!!Population for whom poverty status is determined"
+        ]
+    },
+    "race": {
+        "columns": [
+            "Estimate!!Total!!White alone",
+            "Estimate!!Total!!Black or African American alone",
+            "Estimate!!Total!!American Indian and Alaska Native alone",
+            "Estimate!!Total!!Asian alone",
+            "Estimate!!Total!!Native Hawaiian and Other Pacific Islander alone",
+            "Estimate!!Total!!Some other race alone",
+            "Estimate!!Total!!Two or more races"
+        ]
+    },
+    "total_population": {
+        "columns": ["Estimate!!Total"],
+        "rename": {"Estimate!!Total": "Estimate Total Population"}
+    },
+    "mua": {
+        "columns": [
+            "MUA/P Area Code",
+            "Designation Type",
+            "MUA/P Status Description",
+            "MUA/P Designation Date String",
+            "MUA/P Update Date String",
+            "IMU Score"
+        ]
+    },
+    "svi": {
+        "columns": [
+            "FIPS",
+            "RPL_THEMES",
+            "AREA_SQMI"
+        ]
+    }
+}
