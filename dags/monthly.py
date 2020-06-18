@@ -7,9 +7,9 @@ from airflow.utils.helpers import chain
 
 sys.path.append('.')
 from scripts.callables import scrape_transform, load_file
-from scripts.transformers import transform_unemployment_stats
+from scripts.url_transformers import transform_unemployment_stats
 # from dags.211dashboard.scripts.callables import scrape_transform, load_file
-# from dags.211dashboard.scripts.transformers import transform_unemployment_stats
+# from dags.211dashboard.scripts.url_transformers import transform_unemployment_stats
 
 
 '''

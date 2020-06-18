@@ -180,3 +180,40 @@ class Scraper:
         obj = self.s3_conn.Object(self.bucket_name, filename)
         obj.put(Body=content)
         logging.info(f'{filename} uploaded to s3 bucket.')
+
+    def s3_transform_to_s3(self, data, output_filename, resource_path, transformer, sep='|'):
+        """
+        Calls a transformer function on data found in s3.
+        Then uploads resulting output file to s3.
+
+        Parameters
+        ----------
+        data : str 
+            file or folder in which data can be found
+        output_filename: str
+            file name for output
+        resource_path: str
+            path to project resource folder (used for data dictionaries)
+        transformer : function
+            function called to transform data
+        sep : str
+            csv file delimiter
+
+        """
+        if self.s3_conn is None:
+            logging.error('Sink acts as source. Must connect to s3 sink first.')
+        df = transformer(data, resource_path, self.s3_conn, self.bucket_name)
+        logging.info(f'Successfully transformed data from {data}.')
+        csv_buf = StringIO()
+        df.to_csv(csv_buf, sep=sep, header=True, index=False)
+        csv_buf.seek(0)
+        content = csv_buf.getvalue()
+        
+        # add "_current" to filename
+        filename = self.__rename_file(output_filename)
+        # copy "_current" file in bucket to "_previous"
+        self.__archive_file(filename)
+        # create s3 object
+        obj = self.s3_conn.Object(self.bucket_name, filename)
+        obj.put(Body=content)
+        logging.info(f'{filename} uploaded to s3 bucket.')

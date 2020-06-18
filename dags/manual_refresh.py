@@ -32,9 +32,7 @@ More info to come...
 
 AIRFLOW_HOME = os.environ['AIRFLOW_HOME']
 SEARCH_PATH = f'{AIRFLOW_HOME}/scripts/sql/'  # development
-RESOURCE_PATH = f'{AIRFLOW_HOME}/resources/'  # development
 # SEARCH_PATH = f'{AIRFLOW_HOME}/dags/211dashboard/scripts/sql/'  # production
-# RESOURCE_PATH = f'{AIRFLOW_HOME}/dags/211dashboard/resources/'  # production
 
 args = {
     'owner': '211dashboard',
