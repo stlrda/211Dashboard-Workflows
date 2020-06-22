@@ -21,7 +21,10 @@ Main transformer functions
         df <pandas df> : transformed dataframe
 
 Name of transformer functions in use:
-    #TODO
+    transform_census_data
+    transform_funding_data
+    transform_crosswalk_files
+    generate_areas_of_interest
 
 """
 
@@ -31,7 +34,7 @@ STATE_DICT = {'MO': '29', 'IL': '17'}
 
 """ helper functions """ 
 
-#### Helper Functions:
+#### Census Helper Functions:
 
 def census_equation_reader(df, dval, level):
     ids = df.iloc[:,0]
@@ -117,7 +120,7 @@ def census_svi_parser(path, dval, level, s3_conn, bucket_name):
 
 
 
-#### Main Helper
+#### Main Census Helper
 
 def census_data_collector(data, data_dict, s3_conn, bucket_name):
     level = data.split('_').pop()
@@ -183,6 +186,32 @@ def census_median_income_formatter(df):
     return df
 
 
+### Areas of Interest - helper functions
+def flag_geo_areas(county, state, cnty_set):
+    for cnty in cnty_set:
+        if county==cnty['county'] and state==cnty['state']:
+            return 'Y'
+        else:
+            continue
+    
+    return ''
+
+def filter_geo_areas(df, geo_dict):
+    idx = 3
+    for area, cnty_set in geo_dict['areas'].items():
+        df.insert(idx, f'{area}_flag', df.apply(lambda x: flag_geo_areas(county=x['county'], state=x['state'], cnty_set=cnty_set), axis=1))
+        logging.info(f"Successfully flagged '{area}' area regions.")
+        idx+=1
+    
+    state_tup = tuple(d['fips'] for d in geo_dict['states'])
+    logging.info('Filtering for areas of interest...')
+    fltrd_set = set(df[df['geo_id'].str.startswith(state_tup)].index)
+    for i in range(3, len(df.columns)):
+        fltrd_set.update(df[df.iloc[:,i]=='Y'].index)
+    
+    return df.filter(items=fltrd_set, axis=0)
+
+
 """ main functions """
 
 # census
@@ -233,3 +262,33 @@ def transform_crosswalk_files(data, resource_path, s3_conn, bucket_name):
     return df[df[fids].str.startswith((STATE_DICT['MO'], STATE_DICT['IL']))]
 
 # areas of interest
+def generate_areas_of_interest(data, resource_path, s3_conn, bucket_name):  # data = 'census_county'
+    """ 
+    generates geoid, county_name table from census county data
+    also uses areas_of_interest.csv file found in resource directory
+    to provide appropriate 'labels'
+    """
+    
+    with open(f'{resource_path}census.json') as json_census:
+        census_dict = json.load(json_census)
+        
+    with open(f'{resource_path}areas_of_interest.json') as json_geo:
+        geo_dict = json.load(json_geo)
+    
+    key = list(census_dict.keys())[0]  # arbitrarily choose first key to create county list from
+    path = f'{data}/{key}'
+    
+    bucket = s3_conn.Bucket(bucket_name)
+    file = [obj.key for obj in list(bucket.objects.filter(Prefix=f'{path}/')) if 'data_with_overlays' in obj.key].pop()
+    obj = s3_conn.meta.client.get_object(Bucket=bucket_name, Key=file)
+    df = pd.read_csv(io.BytesIO(obj['Body'].read()), header=1)
+    df = df.iloc[:,0:2]
+    
+    df['county'], df['state'] = df['Geographic Area Name'].str.split(', ', 1).str
+    df.insert(2, 'geo_id', df['id'].map(lambda x: re.search(r'^\d+US(\d{5})$', x).group(1)))
+    df['county'] = df['county'].str.replace(' County', '')
+    df['county'] = df['county'].str.replace(' city', ' City')
+    df = df.iloc[:,2:5]
+    
+    geo_df = filter_geo_areas(df, geo_dict)
+    return geo_df

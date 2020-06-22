@@ -1,0 +1,32 @@
+{
+    "states": [
+        {"name": "Missouri", "fips": "29"}
+    ],
+    "areas": {
+        "metro": [
+            {"county": "St. Louis City", "state": "Missouri"},
+            {"county": "St. Louis", "state": "Missouri"},
+            {"county": "St. Charles", "state": "Missouri"},
+            {"county": "St. Clair", "state": "Illinois"},
+            {"county": "Madison", "state": "Illinois"},
+            {"county": "Monroe", "state": "Illinois"},
+            {"county": "Randolph", "state": "Illinois"},
+            {"county": "Clinton", "state": "Illinois"},
+            {"county": "Macoupin", "state": "Illinois"},
+            {"county": "Jersey", "state": "Illinois"},
+            {"county": "Greene", "state": "Illinois"},
+            {"county": "Calhoun", "state": "Illinois"},
+            {"county": "Jefferson", "state": "Missouri"},
+            {"county": "Franklin", "state": "Missouri"},
+            {"county": "Warren", "state": "Missouri"},
+            {"county": "Lincoln", "state": "Missouri"}
+        ],
+        "core": [
+            {"county": "St. Louis City", "state": "Missouri"},
+            {"county": "St. Louis", "state": "Missouri"},
+            {"county": "St. Charles", "state": "Missouri"},
+            {"county": "St. Clair", "state": "Illinois"},
+            {"county": "Madison", "state": "Illinois"}
+        ]
+    }
+}
