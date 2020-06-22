@@ -97,25 +97,25 @@
 -- 2020-05-20 (Wed.)
 -- 4. The table was then DROPped and recreated - and the new data file was 
 --    into the table.
-CREATE TABLE 
-          IF NOT EXISTS  uw211dashboard.public.lkup_zip_tract_geoid
-(zip_cd                  VARCHAR(10),
- tract_cd                VARCHAR(30),   -- Census Tract
- geo_id                  VARCHAR(10),
- county_nm               VARCHAR(30),
- state_nm                VARCHAR(30),
--- 2020-05-20 (Wed.)  -- see notes above.
- area_of_intr_flg_core   VARCHAR(1),  -- 2020-05-20 modificatin (see details in header)
- area_of_intr_flg_metro  VARCHAR(1),  -- 2020-05-20 modificatin (see details in header)
- PRIMARY KEY (zip_cd, tract_cd)
-);
+-- CREATE TABLE 
+--           IF NOT EXISTS  uw211dashboard.public.lkup_zip_tract_geoid
+-- (zip_cd                  VARCHAR(10),
+--  tract_cd                VARCHAR(30),   -- Census Tract
+--  geo_id                  VARCHAR(10),
+--  county_nm               VARCHAR(30),
+--  state_nm                VARCHAR(30),
+-- -- 2020-05-20 (Wed.)  -- see notes above.
+--  area_of_intr_flg_core   VARCHAR(1),  -- 2020-05-20 modificatin (see details in header)
+--  area_of_intr_flg_metro  VARCHAR(1),  -- 2020-05-20 modificatin (see details in header)
+--  PRIMARY KEY (zip_cd, tract_cd)
+-- );
 
 
-COMMENT ON TABLE uw211dashboard.public.lkup_zip_tract_geoid IS
-'This table contains the lookup data for geographic regions pertaining to Zip, Census-Tract, Geo-ID, County, and State.
+-- COMMENT ON TABLE uw211dashboard.public.lkup_zip_tract_geoid IS
+-- 'This table contains the lookup data for geographic regions pertaining to Zip, Census-Tract, Geo-ID, County, and State.
 
-This table as loaded from the S3 file "s3://uw211dashboard-workbucket/zip_tract_geoid.csv".'
-;
+-- This table as loaded from the S3 file "s3://uw211dashboard-workbucket/zip_tract_geoid.csv".'
+-- ;
 
 -- -----------------------------------------------------------------------------
 -- 2020-05-19
@@ -125,26 +125,26 @@ This table as loaded from the S3 file "s3://uw211dashboard-workbucket/zip_tract_
 -- -----------------------------------
 -- 5. View LKUP_VU_COUNTY_GEOID was also RECREATED to include the new 'Areas of intrest'
 --    flags.
-CREATE OR REPLACE VIEW uw211dashboard.public.lkup_vu_county_geoid
-AS
-(SELECT  geo_id,
-         county_nm,
-         state_nm,
-         area_of_intr_flg_core,     -- 2020-05-20 modificatin (see details in header)
-         area_of_intr_flg_metro,    -- 2020-05-20 modificatin (see details in header)
-         COUNT(*)    county_zip_cd_cnt
-   FROM  uw211dashboard.public.lkup_zip_tract_geoid
-  GROUP  BY geo_id,
-            county_nm,
-            state_nm,
-            area_of_intr_flg_core,   -- 2020-05-20 modificatin (see details in header)
-            area_of_intr_flg_metro   -- 2020-05-20 modificatin (see details in header)
-);
+-- CREATE OR REPLACE VIEW uw211dashboard.public.lkup_vu_county_geoid
+-- AS
+-- (SELECT  geo_id,
+--          county_nm,
+--          state_nm,
+--          area_of_intr_flg_core,     -- 2020-05-20 modificatin (see details in header)
+--          area_of_intr_flg_metro,    -- 2020-05-20 modificatin (see details in header)
+--          COUNT(*)    county_zip_cd_cnt
+--    FROM  uw211dashboard.public.lkup_zip_tract_geoid
+--   GROUP  BY geo_id,
+--             county_nm,
+--             state_nm,
+--             area_of_intr_flg_core,   -- 2020-05-20 modificatin (see details in header)
+--             area_of_intr_flg_metro   -- 2020-05-20 modificatin (see details in header)
+-- );
 
-COMMENT ON VIEW uw211dashboard.public.lkup_vu_county_geoid IS
-'This view is used for look-up on GEO_ID for a given COUNTY_NM or to get COUNTY_NM for a given GEO_ID.
-This view is based on LKUP_ZIP_TRACT_GEOID table. For more details check comments on that table.'
-;
+-- COMMENT ON VIEW uw211dashboard.public.lkup_vu_county_geoid IS
+-- 'This view is used for look-up on GEO_ID for a given COUNTY_NM or to get COUNTY_NM for a given GEO_ID.
+-- This view is based on LKUP_ZIP_TRACT_GEOID table. For more details check comments on that table.'
+-- ;
 ---------------------------------------------------------------------------------
 
 -- 2020-06-04 (Thu.) Haresh Bhatia
@@ -198,7 +198,8 @@ AS
           GROUP  BY zip_cd
         )                                r1,
          lkup_zip_county_mpg_gtwy_rgnl   r2,
-         lkup_vu_county_geoid            ge   -- to get County and State names.
+         lkup_areas_of_intr_geo_scope    ge   -- to get County and State names.  -- modifed 6/22/2020 KB
+         -- changed "ge" table to lkup_areas_of_intr_geo_scope - this will filter for only counties we are interested in
   WHERE  r2.zip_cd    = r1.zip_cd
     AND  r2.res_ratio = r1.max_res
     AND  r2.geo_id    = ge.geo_id

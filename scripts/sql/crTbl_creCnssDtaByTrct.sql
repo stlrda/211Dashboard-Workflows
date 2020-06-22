@@ -1,4 +1,10 @@
 --
+-- EDIT: 06/22/2020 - KB
+-- This SQL script is no longer in use, see "crTbl_creCnssDta.sql" for 
+-- core census table DDLs 
+--
+--
+--
 -- 2020-05-13 (Wed.) Haresh Bhatia
 --
 -- This DDL creates the table for (2018) census data.

@@ -56,8 +56,8 @@ COMMENT ON TABLE uw211dashboard.public.cre_last_success_run_dt IS
 
 INSERT INTO uw211dashboard.public.cre_last_success_run_dt
 VALUES ('DLY_ALL'   , '1900-01-01', 0),
-       ('WKLY_ALL'  , '1900-01-01', 0),   -- added 2020-05-19 
-       ('MNTHLY_ALL', '1900-01-01', 0)    -- added 2020-05-19 
+       ('WKLY_ALL'  , '2019-01-01', 0),   -- added 2020-05-19 -- changed 2020-06-22 KB
+       ('MNTHLY_ALL', '1900-01-01', 0)    -- added 2020-05-19
 ;
 
 --==================================================================================

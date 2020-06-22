@@ -83,14 +83,14 @@ create_success_date_covid_unemployment_core_tables = PostgresOperator(
     sql='crTbl_creRstOthrs.sql', 
     dag=dag)
 
-create_lookup_zip_tract_geo = PostgresOperator(
-    task_id='create_lookup_zip_tract_geo', 
-    sql='crTbl_lkupZipTractGeo.sql', 
-    dag=dag)
+# create_lookup_zip_tract_geo = PostgresOperator(
+#     task_id='create_lookup_zip_tract_geo', 
+#     sql='crTbl_lkupZipTractGeo.sql', 
+#     dag=dag)
 
-create_census_by_tract = PostgresOperator(
-    task_id='create_census_by_tract', 
-    sql='crTbl_creCnssDtaByTrct.sql', 
+create_core_census = PostgresOperator(
+    task_id='create_core_census', 
+    sql='crTbl_creCnssDta.sql', 
     dag=dag)
 
 create_core_census_views = PostgresOperator(
@@ -120,16 +120,16 @@ create_dataviz_functions = PostgresOperator(
 #     },
 #     dag=dag)
 
-load_zip_tract_geo = PythonOperator(
-    task_id='load_zip_tract_geo',
-    python_callable=load_file,
-    op_kwargs={
-        'filename': 'zip_tract_geoid.csv',
-        'table_name': 'lkup_zip_tract_geoid',
-        'sep': '|',
-        'nullstr': ''
-    },
-    dag=dag)
+# load_zip_tract_geo = PythonOperator(
+#     task_id='load_zip_tract_geo',
+#     python_callable=load_file,
+#     op_kwargs={
+#         'filename': 'zip_tract_geoid.csv',
+#         'table_name': 'lkup_zip_tract_geoid',
+#         'sep': '|',
+#         'nullstr': ''
+#     },
+#     dag=dag)
 
 load_static_regional_funding = PythonOperator(
     task_id='load_static_regional_funding',
@@ -137,6 +137,17 @@ load_static_regional_funding = PythonOperator(
     op_kwargs={
         'filename': 'stl_regional_funding_cleaned.csv',
         'table_name': 'cre_stl_rgnl_fndng_clnd',
+        'sep': '|',
+        'nullstr': ''
+    },
+    dag=dag)
+
+load_census_by_county = PythonOperator(
+    task_id='load_census_by_county',
+    python_callable=load_file,
+    op_kwargs={
+        'filename': 'census_data_by_county.csv',
+        'table_name': 'cre_census_data_by_county_yr2018',
         'sep': '|',
         'nullstr': ''
     },
@@ -231,13 +242,14 @@ chain(
         create_staging_covid_full,
         create_static_regional_funding,
         create_success_date_covid_unemployment_core_tables,
-        create_lookup_zip_tract_geo,
-        create_census_by_tract,
+        #create_lookup_zip_tract_geo,
+        create_core_census,
         create_core_census_views],
     grant_read_permissions,
     create_dataviz_functions,
-    [load_zip_tract_geo,  # load "static" data tables
+    [#load_zip_tract_geo,  # load "static" data tables
         load_static_regional_funding,
+        load_census_by_county,
         load_census_by_tract],
     scrape_unemployment_claims_full,  # begin loading of all unemployment data
     [load_bls_unemployment_2019_staging,
