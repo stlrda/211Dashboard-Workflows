@@ -7,6 +7,7 @@ from airflow.operators.postgres_operator import PostgresOperator
 from airflow.utils.helpers import chain
 
 sys.path.append('.')
+
 # from scripts.callables import transform_static_s3, load_file
 # from scripts.s3_transformers import transform_census_data, transform_funding_data
 # from scripts.s3_transformers import transform_crosswalk_files, generate_areas_of_interest
@@ -37,6 +38,7 @@ AIRFLOW_HOME = os.environ['AIRFLOW_HOME']
 # RESOURCE_PATH = f'{AIRFLOW_HOME}/resources/'  # development
 SEARCH_PATH = f'{AIRFLOW_HOME}/dags/211dashboard/scripts/sql/'  # production
 RESOURCE_PATH = f'{AIRFLOW_HOME}/dags/211dashboard/resources/'  # production
+
 
 args = {
     'owner': '211dashboard',
