@@ -36,7 +36,7 @@ COVID_BASE_URL = 'https://raw.githubusercontent.com/slu-openGIS/covid_daily_viz/
 
 args = {
     'owner': '211dashboard',
-    'start_date': datetime(2020, 5, 25),
+    'start_date': datetime(2020, 6, 22),
     'concurrency': 1,
     'retries': 0,
     'depends_on_past': False,
@@ -184,7 +184,7 @@ covid_staging_to_core = PostgresOperator(
 
 # 211_staging_to_core = PostgresOperator(
 #     task_id='211_staging_to_core', 
-#     sql='dtaMgrtn_211_dly.sql', #TODO
+#     sql='dtaMgrtn_211_dly.sql',
 #     dag=dag) 
 
 
@@ -209,8 +209,8 @@ chain(
     [load_covid_county_full_staging,  # load data
         load_covid_zip_stl_city_staging, 
         load_covid_zip_stl_county_staging, 
-        load_211_staging], 
+        load_211_staging], # currently reloads the same sample file again and again
     covid_staging_to_core,  # staging --> core
-    # 211_staging_to_core #NOTE not ready yet
+    # 211_staging_to_core  #TODO
     update_daily_timestamp
 )

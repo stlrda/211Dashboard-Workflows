@@ -7,16 +7,21 @@ import requests
 import datetime
 
 """
-Extra functions used to transform data.
+Extra functions used to transform data from the web (url).
+Main transformer functions
+    Arugments:
+        url <str>
+    Return:
+        df <pandas df>
 
 Name of transformer functions in use:
-
     transform_unemployment_stats
-
 
 """
 
-month_dict = {
+# global variables
+
+MONTH_DICT = {
     'Jan' : 1,
     'Feb' : 2,
     'Mar' : 3,
@@ -31,15 +36,20 @@ month_dict = {
     'Dec' : 12
 }
 
+""" helper functions """ 
+
 def last_day_of_month(any_day):
     next_month = any_day.replace(day=28) + datetime.timedelta(days=4)  # this will never fail
     return next_month - datetime.timedelta(days=next_month.day)
 
 def unemployment_month_parser(text):
     mo, yr = text.split('-')
-    mo_num = month_dict[mo]
+    mo_num = MONTH_DICT[mo]
     yr_num = int('20'+yr.replace('(p)', ''))
     return last_day_of_month(datetime.date(yr_num, mo_num, 1))
+
+
+""" main functions """
 
 def transform_unemployment_stats(url):
     myfile = requests.get(url)
@@ -71,4 +81,5 @@ def transform_unemployment_stats(url):
         'labor_force': int,
         'employed': int,
         'unemployed': int,
-        'unemp_rate': float})
+        'unemp_rate': float}
+    )

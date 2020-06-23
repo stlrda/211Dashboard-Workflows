@@ -56,8 +56,8 @@ COMMENT ON TABLE uw211dashboard.public.cre_last_success_run_dt IS
 
 INSERT INTO uw211dashboard.public.cre_last_success_run_dt
 VALUES ('DLY_ALL'   , '1900-01-01', 0),
-       ('WKLY_ALL'  , '2019-01-01', 0),   -- added 2020-05-19  -- changed 2020-05-20 (KB) 
-       ('MNTHLY_ALL', '1900-01-01', 0)    -- added 2020-05-19 
+       ('WKLY_ALL'  , '2019-01-01', 0),   -- added 2020-05-19 -- changed 2020-06-22 KB
+       ('MNTHLY_ALL', '1900-01-01', 0)    -- added 2020-05-19
 ;
 
 --==================================================================================
@@ -113,6 +113,8 @@ COMMENT ON TABLE uw211dashboard.public.cre_covid_data IS
 The data for this table was consolidated from the staging tables - STG_COVID_DLY_VIZ_CNTY_ALL, STG_COVID_ZIP_STL_CounTY, and STG_COVID_ZIP_STL_CiTY; as indicated by the respective values of "ALL_COUNTY", "STL_COUNTY", and "STL_CITY" in the attribute DATA_SOURCE. [The attribute DATA_SOURCE is part of the PK.] 
 
 The data in STG_COVID_ZIP_STL_CounTY and ..._CiTY are (at least for present) limited only to CASE COUNT and RATE. [These data may get expanded to other attributes covered in STG_COVID_DLY_VIZ_CNTY_ALL.
+
+The RATEs (CASE_ and MORTALITY_) are per 1000; case_FATALITY_RATE is fetalities per case (in other words, it is proportion of fatalities). The AVeraGes (CASE_ and DEATH_) are over the past week.
 
 These tables get daily data feeds from the source (staging) tables.'
 ;
@@ -211,43 +213,138 @@ This core table data is expected to get incremental feeds monthly.
 '
 ;
 
+------------------------------------------------------------------------------------
 
---==============================================================================================
-
-
-/* This is INCOMPLETE still...
--------------------------------------------------------------------------------
+------------------------------------------------------------------------------------
+-- 2020-05-29 (Fri.) Haresh Bhatia
 --
--- D. Table CRE_MO_211_DATA
+-- E. Set of Tables for 211 Data.
+-- E1. Table LKUP_211_CATEGORY
+--    [This happens to be a deviation to include definition for two lookup tables
+--     (one each, for CATEGORY and SUB_CATEGORY) in this script that is meant
+--     mainly for creating 'CORE...' tables. But these are closely related to,
+--     and meant only for, the 211 data.
 --
--- 1. Table CRE_MO_211_DATA contains data for the 211 call-support related
---    attributes along with CALL_DT (call category, sub-category, census_cd, etc.)
+--    1. This table contains the distinct 211 CATEGORY defintions for 211 data.
+--    2. While there may be a standardized list of CATEGORies, it is not yet 
+--       available at the time of creation of these data objects. Therefore, until
+--       a standardized list is provided (by the RDA team) the data for CATEGORies
+--       is derived from the raw 211 calls data file that feeds into the
+--       corresponding staging table.
 -- 
--- 2. The data for this table were gathered from the corresponding staging table
---    STG_MO_211_DATA.
+
+CREATE TABLE 
+          IF NOT EXISTS  uw211dashboard.public.lkup_211_category
+(two11_category_id   SERIAL       NOT NULL,
+ two11_category_nm   VARCHAR(100) NOT NULL,
+ created_tsp       TIMESTAMPTZ    NOT NULL DEFAULT now(),
+ last_update_tsp   TIMESTAMPTZ    NOT NULL DEFAULT now(),
+ PRIMARY KEY (two11_category_id)
+)
+;
+
+COMMENT ON TABLE uw211dashboard.public.lkup_211_category IS
+'This table contains the definition of 211-categories for given 211 data.
+
+While there may be a standardized list of CATEGORies, it is not yet available at the time of creation of this table. Therefore, until a standardized list is provided (by the RDA team) the data for CATEGORies is derived from the raw 211 calls data file that feeds into the corresponding staging table.
+'
+;
+
+---------------------------------------------
+-- E2. Table LKUP_211_SUB_CATEGORY
+--    [This happens to be a deviation to include definition for two lookup tables
+--     (one each, for CATEGORY and SUB_CATEGORY) in this script that is meant
+--     mainly for creating 'CORE...' tables. But these are closely related to,
+--     and meant only for, the 211 data.
+--
+--    1. This table contains the distinct 211 SUB-CATEGORY defintions for 211 data.
+--    2. While there may be a standardized list of SUB-CATEGORies, for respective
+--       CATEGORies, it is not yet available at the time of creation of these
+--       data objects. Therefore, until a standardized list is provided (by the
+--       RDA team) the data for SUB-CATEGORies is derived from the raw 211 calls data
+--       file that feeds into the corresponding staging table.
 -- 
--- 3. This table gets daily data feeds from the corresponding source (staging)
---    tables.
--- 
--- 
+
+CREATE TABLE 
+          IF NOT EXISTS  uw211dashboard.public.lkup_211_sub_category
+(two11_category_id       INTEGER      NOT NULL REFERENCES uw211dashboard.public.lkup_211_category (two11_category_id),
+ two11_sub_category_id   SERIAL       NOT NULL,
+ two11_sub_category_nm   VARCHAR(100) NOT NULL,
+ created_tsp             TIMESTAMPTZ  NOT NULL DEFAULT now(),
+ last_update_tsp         TIMESTAMPTZ  NOT NULL DEFAULT now(),
+ PRIMARY KEY (two11_category_id, two11_sub_category_id)
+)
+;
+
+COMMENT ON TABLE uw211dashboard.public.lkup_211_category IS
+'This table contains the definition of 211-sub-categories for given 211 data.
+
+While there may be a standardized list of SUB-CATEGORies, for respective CATEGORies, it is not yet available at the time of creation of this table. Therefore, until a standardized list is provided (by the RDA team) the data for SUB-CATEGORies is derived from the raw 211 calls data file that feeds into the corresponding staging table.
+'
+;
+
+---------------------------------------------
+-- E3. Table CRE_211_DATA
+--
+--  1. This table contains the normalized version of the 211 data incrementally
+--     trasferred from the corresponding staging table.
+--  2. The CATEGORY and SUB-CATEGORY IDs are derived by matching the respective 
+--     names, from the staging data, with the corresponding LKUP tables (as
+--     defined above).
 --
 CREATE TABLE 
           IF NOT EXISTS  uw211dashboard.public.cre_211_data
-(call_date         DATE,
- state_nm          VARCHAR(30),
- county_nm         VARCHAR(30),
- zip_cd            VARCHAR(10),
- category          VARCHAR(200),
- sub_category      VARCHAR(200),
- call_counts       INTEGER,
- created_tsp       TIMESTAMPTZ     NOT NULL DEFAULT now(),
- last_update_tsp   TIMESTAMPTZ     NOT NULL DEFAULT now(),
- PRIMARY KEY (call_date, state_nm, county_nm, zip_cd)
+(call_date              DATE,
+ state_nm               VARCHAR(30),
+ county_nm              VARCHAR(30),
+ zip_cd                 VARCHAR(10),
+ two11_category_id      INTEGER      REFERENCES uw211dashboard.public.lkup_211_category     (two11_category_id),
+ two11_sub_category_id  INTEGER,
+ call_counts            INTEGER,
+ created_tsp            TIMESTAMPTZ     NOT NULL DEFAULT now(),
+ last_update_tsp        TIMESTAMPTZ     NOT NULL DEFAULT now(),
+ PRIMARY KEY (call_date, zip_cd, two11_category_id, two11_sub_category_id),
+ FOREIGN KEY (two11_category_id, two11_sub_category_id)
+  REFERENCES uw211dashboard.public.lkup_211_sub_category (two11_category_id, two11_sub_category_id)
 );
 
 
-COMMENT ON TABLE uw211dashboard.public.cre_mo_211_data IS
-'Table CRE_MO_211_DATA contains data for the 211 calls.'
+COMMENT ON TABLE uw211dashboard.public.cre_211_data IS
+'Table CRE_211_DATA contains data for the 211 calls.
+The CATEGORY and SUB-CATEGORY IDs are derived by matching the respective names, from the staging data, with the corresponding LKUP tables
+'
 ;
-*/
+
+---------------------------------------------
+-- E4. View CRE_VU_211_DATA
+--
+--  1. This view contains the denormalized version of the 211 data (and is based
+--     on CRE_211_DATA table.
+--  2. The purpose of this denormalized view (esp. after creating the normalized
+--     version from the staging data table) is to facilitate an effortless data
+--     fetch by UI/UX tool (mainly Tableau) - while keeping the DB DB structure
+--     flexible and optimized.
+--
+CREATE OR REPLACE VIEW uw211dashboard.public.cre_vu_211_data
+AS
+(SELECT  t1.call_date,
+         t1.state_nm,
+         t1.county_nm,
+         t1.zip_cd,
+         c1.two11_category_nm,
+         s1.two11_sub_category_nm,
+         t1.call_counts
+   FROM  cre_211_data           t1,
+         lkup_211_category      c1,
+         lkup_211_sub_category  s1
+  WHERE  t1.two11_category_id     = c1.two11_category_id
+    AND  t1.two11_category_id     = s1.two11_category_id
+    AND  t1.two11_sub_category_id = s1.two11_sub_category_id
+)
+;
+
+COMMENT ON VIEW uw211dashboard.public.cre_vu_211_data IS
+'Table CRE_VU_211_DATA contains data for the 211 calls.
+The CATEGORY and SUB-CATEGORY names are derived by matching the respective IDs with the corresponding LKUP tables.
+'
 

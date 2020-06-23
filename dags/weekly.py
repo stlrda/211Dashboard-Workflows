@@ -28,7 +28,7 @@ SEARCH_PATH = f'{AIRFLOW_HOME}/dags/211dashboard/scripts/sql/'  # production
 
 args = {
     'owner': '211dashboard',
-    'start_date': datetime(2020, 5, 22),
+    'start_date': datetime(2020, 6, 1),
     'concurrency': 1,
     'retries': 0,
     'depends_on_past': False,
