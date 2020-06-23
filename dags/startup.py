@@ -68,10 +68,10 @@ create_staging_covid_full = PostgresOperator(
     sql='crTbl_stgCovidDlyVizByCntyAll.sql', 
     dag=dag)
 
-# create_lookup_interest_areas = PostgresOperator(
-#     task_id='create_lookup_interest_areas', 
-#     sql='crTbl_lkupZpCdAndAreasOfInterest.sql', 
-#     dag=dag)
+create_lookup_interest_areas = PostgresOperator(
+    task_id='create_lookup_interest_areas', 
+    sql='crTbl_lkupZpCdAndAreasOfInterest.sql', 
+    dag=dag)
 
 create_static_regional_funding = PostgresOperator(
     task_id='create_static_regional_funding', 
@@ -83,11 +83,6 @@ create_success_date_covid_unemployment_core_tables = PostgresOperator(
     sql='crTbl_creRstOthrs.sql', 
     dag=dag)
 
-# create_lookup_zip_tract_geo = PostgresOperator(
-#     task_id='create_lookup_zip_tract_geo', 
-#     sql='crTbl_lkupZipTractGeo.sql', 
-#     dag=dag)
-
 create_core_census = PostgresOperator(
     task_id='create_core_census', 
     sql='crTbl_creCnssDta.sql', 
@@ -96,6 +91,11 @@ create_core_census = PostgresOperator(
 create_core_census_views = PostgresOperator(
     task_id='create_core_census_views', 
     sql='crVu_creVuCnssDta.sql', 
+    dag=dag)
+
+create_other_core_views = PostgresOperator(
+    task_id='create_other_core_views', 
+    sql='crVu_creVuOthrs.sql', 
     dag=dag)
 
 grant_read_permissions = PostgresOperator(
@@ -108,34 +108,22 @@ create_dataviz_functions = PostgresOperator(
     sql='crFnctns_dataviz.sql', 
     dag=dag)
 
-#TODO decide if we are keeping this (any use for it in manual dag???)
-# load_areas_of_interest = PythonOperator(
-#     task_id='load_areas_of_interest',
-#     python_callable=load_file,
-#     op_kwargs={
-#         'filename': 'areasOfNtrst_geoScope_pipDlm.csv',
-#         'table_name': 'lkup_areas_of_intr_geo_scope',
-#         'sep': '|',
-#         'nullstr': ''
-#     },
-#     dag=dag)
-
-# load_zip_tract_geo = PythonOperator(
-#     task_id='load_zip_tract_geo',
-#     python_callable=load_file,
-#     op_kwargs={
-#         'filename': 'zip_tract_geoid.csv',
-#         'table_name': 'lkup_zip_tract_geoid',
-#         'sep': '|',
-#         'nullstr': ''
-#     },
-#     dag=dag)
+load_areas_of_interest = PythonOperator(
+    task_id='load_areas_of_interest',
+    python_callable=load_file,
+    op_kwargs={
+        'filename': 'areas_of_interest.csv',
+        'table_name': 'lkup_areas_of_intr_geo_scope',
+        'sep': '|',
+        'nullstr': ''
+    },
+    dag=dag)
 
 load_static_regional_funding = PythonOperator(
     task_id='load_static_regional_funding',
     python_callable=load_file,
     op_kwargs={
-        'filename': 'stl_regional_funding_cleaned.csv',
+        'filename': 'funding_data_final_public_pipedlm.csv',
         'table_name': 'cre_stl_rgnl_fndng_clnd',
         'sep': '|',
         'nullstr': ''
@@ -163,6 +151,40 @@ load_census_by_tract = PythonOperator(
         'nullstr': ''
     },
     dag=dag)
+
+load_static_zip_county_mapping = PythonOperator(
+    task_id='load_static_zip_county_mapping',
+    python_callable=load_file,
+    op_kwargs={
+        'filename': 'zip_county_mapping_gtwy_rgnl.csv',
+        'table_name': 'lkup_zip_county_mpg_gtwy_rgnl',
+        'sep': '|',
+        'nullstr': ''
+    },
+    dag=dag)
+
+load_static_county_zip_mapping = PythonOperator(
+    task_id='load_static_county_zip_mapping',
+    python_callable=load_file,
+    op_kwargs={
+        'filename': 'county_zip_mapping_gtwy_rgnl.csv',
+        'table_name': 'lkup_county_zip_mpg_gtwy_rgnl',
+        'sep': '|',
+        'nullstr': ''
+    },
+    dag=dag)
+
+load_static_tract_zip_mapping = PythonOperator(
+    task_id='load_static_tract_zip_mapping',
+    python_callable=load_file,
+    op_kwargs={
+        'filename': 'tract_zip_mapping_gtwy_rgnl.csv',
+        'table_name': 'lkup_tract_zip_mpg_gtwy_rgnl',
+        'sep': '|',
+        'nullstr': ''
+    },
+    dag=dag)
+
 
 ''' 
 Define operators for "backfill" of 
@@ -242,15 +264,19 @@ chain(
         create_staging_covid_full,
         create_static_regional_funding,
         create_success_date_covid_unemployment_core_tables,
-        #create_lookup_zip_tract_geo,
+        create_lookup_interest_areas,
         create_core_census,
-        create_core_census_views],
+        create_core_census_views,
+        create_other_core_views],
     grant_read_permissions,
     create_dataviz_functions,
-    [#load_zip_tract_geo,  # load "static" data tables
+    [load_areas_of_interest,  # load "static" data tables
         load_static_regional_funding,
         load_census_by_county,
-        load_census_by_tract],
+        load_census_by_tract,
+        load_static_county_zip_mapping,
+        load_static_zip_county_mapping,
+        load_static_tract_zip_mapping],
     scrape_unemployment_claims_full,  # begin loading of all unemployment data
     [load_bls_unemployment_2019_staging,
         load_unemployment_claims_full_staging],
@@ -258,7 +284,4 @@ chain(
         startup_unemployment_claims_staging_to_core],
     [update_monthly_timestamp_startup,
         update_weekly_timestamp_startup]
-    #TODO
-    # create_lookup_interest_areas
-    # load_areas_of_interest
 )
