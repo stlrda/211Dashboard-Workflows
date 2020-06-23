@@ -122,33 +122,33 @@ COMMENT ON VIEW uw211dashboard.public.cre_vu_covid_zip IS
 -- E. View CRE_VU_BLS_UNEMPLOYMENT_MAP_2_ZIP.
 --
 --
--- CREATE OR REPLACE VIEW uw211dashboard.public.cre_vu_bls_unemployment_map_2_zip
--- AS
--- (SELECT  zip_cd,
---          month_last_date
---          SUM(labor_force)        AS  labor_force,
---          SUM(employed)           AS  employed,
---          SUM(unemployed)         AS  unemployed,
---          SUM(unemployed_rate)    AS  unemployed_rate,            -- NOT-DERIVABLE, therefore NULL
---    FROM (SELECT  ct.geo_id,
---                  ct.month_last_date
---                  zo.zip_cd,
---                  zo.res_ratio,
---                  zo.res_ratio * ct.labor_force   AS  labor_force,
---                  zo.res_ratio * ct.employed      AS  employed,
---                  zo.res_ratio * ct.unemployed    AS  unemployed,
---                  CAST(NULL  AS NUMERIC)          AS  unemployed_rate,                              -- NOT-DERIVABLE, therefore NULL
---            FROM  cre_vu_bls_unemployment_data           ct,
---                  lkup_county_zip_mpg_gtwy_rgnl          zo
---           WHERE  ct.geo_id = zo.geo_id
---         )     zt
---   GROUP  BY zip_cd, month_last_date
--- )
--- ;
+CREATE OR REPLACE VIEW uw211dashboard.public.cre_vu_bls_unemployment_map_2_zip
+AS
+(SELECT  zip_cd,
+         month_last_date,
+         SUM(labor_force)        AS  labor_force,
+         SUM(employed)           AS  employed,
+         SUM(unemployed)         AS  unemployed,
+         SUM(unemployed_rate)    AS  unemployed_rate            -- NOT-DERIVABLE, therefore NULL
+   FROM (SELECT  ct.geo_id,
+                 ct.month_last_date,
+                 zo.zip_cd,
+                 zo.res_ratio,
+                 zo.res_ratio * ct.labor_force   AS  labor_force,
+                 zo.res_ratio * ct.employed      AS  employed,
+                 zo.res_ratio * ct.unemployed    AS  unemployed,
+                 CAST(NULL  AS NUMERIC)          AS  unemployed_rate                              -- NOT-DERIVABLE, therefore NULL
+           FROM  cre_vu_bls_unemployment_data           ct,
+                 lkup_county_zip_mpg_gtwy_rgnl          zo
+          WHERE  ct.geo_id = zo.geo_id
+        )     zt
+  GROUP  BY zip_cd, month_last_date
+)
+;
 
--- COMMENT ON VIEW uw211dashboard.public.cre_vu_bls_unemployment_map_2_zip IS
--- 'This view translates monthly unemployment stats by county to zip-code level.
---  Warning - The method used for translation is a rough estimate.'
+COMMENT ON VIEW uw211dashboard.public.cre_vu_bls_unemployment_map_2_zip IS
+'This view translates monthly unemployment stats by county to zip-code level.
+ Warning - The method used for translation is a rough estimate.'
 --
 --
 --==================================================================================================
@@ -156,24 +156,24 @@ COMMENT ON VIEW uw211dashboard.public.cre_vu_covid_zip IS
 -- E. View CRE_VU_UNEMPLOYMENT_CLMS_MAP_2_ZIP.
 --
 --
--- CREATE OR REPLACE VIEW uw211dashboard.public.cre_vu_unemployment_clms_map_2_zip
--- AS
--- (SELECT  zip_cd,
---          period_end_date
---          SUM(claims_cnt)        AS  claims_cnt,
---    FROM (SELECT  ct.geo_id,
---                  ct.period_end_date
---                  zo.zip_cd,
---                  zo.res_ratio,
---                  zo.res_ratio * ct.claims_cnt   AS  claims_cnt,
---            FROM  cre_vu_unemployment_clms            ct,
---                  lkup_county_zip_mpg_gtwy_rgnl       zo
---           WHERE  ct.geo_id = zo.geo_id
---         )     zt
---   GROUP  BY zip_cd, period_end_date
--- )
--- ;
+CREATE OR REPLACE VIEW uw211dashboard.public.cre_vu_unemployment_clms_map_2_zip
+AS
+(SELECT  zip_cd,
+         period_end_date,
+         SUM(claims_cnt)        AS  claims_cnt
+   FROM (SELECT  ct.geo_id,
+                 ct.period_end_date,
+                 zo.zip_cd,
+                 zo.res_ratio,
+                 zo.res_ratio * ct.claims_cnt   AS  claims_cnt
+           FROM  cre_vu_unemployment_clms            ct,
+                 lkup_county_zip_mpg_gtwy_rgnl       zo
+          WHERE  ct.geo_id = zo.geo_id
+        )     zt
+  GROUP  BY zip_cd, period_end_date
+)
+;
 
--- COMMENT ON VIEW uw211dashboard.public.cre_vu_unemployment_clms_map_2_zip IS
--- 'This view translates weekly unemployment claims counts by county to zip-code level.
---  Warning - The method used for translation is a very rough estimate.'
+COMMENT ON VIEW uw211dashboard.public.cre_vu_unemployment_clms_map_2_zip IS
+'This view translates weekly unemployment claims counts by county to zip-code level.
+ Warning - The method used for translation is a very rough estimate.'

@@ -31,6 +31,19 @@ def scrape_transform(**kwargs):
                           sep=kwargs['sep'])
 
 
+def transform_static_s3(**kwargs):
+    '''
+    Calls "s3_transform_to_s3" method of Scraper class
+    '''
+    s = Scraper(None, Config)  # None type url
+    s.connect_s3_sink()
+    s.s3_transform_to_s3(data=kwargs['data'],
+                         output_filename=kwargs['filename'],
+                         resource_path=kwargs['resource_path'],
+                         transformer=kwargs['transformer'],
+                         sep=kwargs['sep'])
+
+
 def load_file(**kwargs):
     '''Calls "csv_to_table" method of Database class'''
     #NOTE table_name must be truncated before
@@ -42,17 +55,3 @@ def load_file(**kwargs):
                     sep=kwargs['sep'],
                     nullstr=kwargs['nullstr'])
     db.close()
-
-
-def transform_then_load(**kwargs):
-    '''
-    First calls "s3_transform_to_s3" method of Scraper class
-    Then calls "csv_to_table" method of Database class
-    '''
-    s = Scraper(None, Config)  # None type url
-    s.connect_s3_sink()
-    s.s3_transform_to_s3(data=kwargs['data'],
-                         output_filename=kwargs['filename'],
-                         transformer=kwargs['transformer'],
-                         sep=kwargs['sep'])
-    load_file(kwargs)
