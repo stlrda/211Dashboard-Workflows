@@ -21,8 +21,8 @@ B. Unemployment claims data (mo)
 '''
 
 AIRFLOW_HOME = os.environ['AIRFLOW_HOME']
-SEARCH_PATH = f'{AIRFLOW_HOME}/scripts/sql/'  # development
-# SEARCH_PATH = f'{AIRFLOW_HOME}/dags/211dashboard/scripts/sql/'  # production
+# SEARCH_PATH = f'{AIRFLOW_HOME}/scripts/sql/'  # development
+SEARCH_PATH = f'{AIRFLOW_HOME}/dags/211dashboard/scripts/sql/'  # production
 
 args = {
     'owner': '211dashboard',

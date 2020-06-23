@@ -7,8 +7,8 @@ from airflow.utils.helpers import chain
 
 # add parent folder
 sys.path.append('.')
-from scripts.callables import scrape_api, load_file
-# from dags.211dashboard.scripts.callables import load_file, scrape_api
+# from scripts.callables import scrape_api, load_file
+from dags.211dashboard.scripts.callables import load_file, scrape_api
 
 '''
 Weekly DAG
@@ -23,12 +23,12 @@ Weekly DAG
 '''
 
 AIRFLOW_HOME = os.environ['AIRFLOW_HOME']
-SEARCH_PATH = f'{AIRFLOW_HOME}/scripts/sql/'  # development
-# SEARCH_PATH = f'{AIRFLOW_HOME}/dags/211dashboard/scripts/sql/'  # production
+# SEARCH_PATH = f'{AIRFLOW_HOME}/scripts/sql/'  # development
+SEARCH_PATH = f'{AIRFLOW_HOME}/dags/211dashboard/scripts/sql/'  # production
 
 args = {
     'owner': '211dashboard',
-    'start_date': datetime(2020, 5, 22),
+    'start_date': datetime(2020, 6, 1),
     'concurrency': 1,
     'retries': 0,
     'depends_on_past': False,

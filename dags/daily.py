@@ -6,8 +6,8 @@ from airflow.operators.postgres_operator import PostgresOperator
 from airflow.utils.helpers import chain
 
 sys.path.append('.')
-from scripts.callables import scrape_file, load_file
-# from dags.211dashboard.scripts.callables import scrape_file, load_file
+# from scripts.callables import scrape_file, load_file
+from dags.211dashboard.scripts.callables import scrape_file, load_file
 
 '''
 Daily DAG
@@ -30,13 +30,13 @@ Daily DAG
 '''
 
 AIRFLOW_HOME = os.environ['AIRFLOW_HOME']
-SEARCH_PATH = f'{AIRFLOW_HOME}/scripts/sql/'  # development
-# SEARCH_PATH = f'{AIRFLOW_HOME}/dags/211dashboard/scripts/sql/'  # production
+# SEARCH_PATH = f'{AIRFLOW_HOME}/scripts/sql/'  # development
+SEARCH_PATH = f'{AIRFLOW_HOME}/dags/211dashboard/scripts/sql/'  # production
 COVID_BASE_URL = 'https://raw.githubusercontent.com/slu-openGIS/covid_daily_viz/master/data'
 
 args = {
     'owner': '211dashboard',
-    'start_date': datetime(2020, 5, 25),
+    'start_date': datetime(2020, 6, 22),
     'concurrency': 1,
     'retries': 0,
     'depends_on_past': False,
