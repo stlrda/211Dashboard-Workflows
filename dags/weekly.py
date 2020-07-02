@@ -6,9 +6,9 @@ from airflow.operators.postgres_operator import PostgresOperator
 from airflow.utils.helpers import chain
 
 # add parent folder
-sys.path.append('.')
+sys.path.append('/usr/local/airflow/dags/efs')
 # from scripts.callables import scrape_api, load_file
-from dags.211dashboard.scripts.callables import load_file, scrape_api
+from uw211dashboard.scripts.callables import load_file, scrape_api
 
 '''
 Weekly DAG
@@ -24,7 +24,7 @@ Weekly DAG
 
 AIRFLOW_HOME = os.environ['AIRFLOW_HOME']
 # SEARCH_PATH = f'{AIRFLOW_HOME}/scripts/sql/'  # development
-SEARCH_PATH = f'{AIRFLOW_HOME}/dags/211dashboard/scripts/sql/'  # production
+SEARCH_PATH = f'{AIRFLOW_HOME}/dags/efs/uw211dashboard/scripts/sql/'  # production
 
 args = {
     'owner': '211dashboard',

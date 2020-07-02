@@ -6,9 +6,9 @@ from airflow.models import DAG
 from airflow.operators.postgres_operator import PostgresOperator
 from airflow.utils.helpers import chain
 
-# sys.path.append('.')
+# sys.path.append('/usr/local/airflow/dags/efs')
 # from scripts.callables import scrape_file, load_file
-# from dags.211dashboard.scripts.callables import scrape_file, load_file
+# from uw211dashboard.scripts.callables import scrape_file, load_file
 
 
 '''
@@ -22,7 +22,7 @@ B. Unemployment claims data (mo)
 
 AIRFLOW_HOME = os.environ['AIRFLOW_HOME']
 # SEARCH_PATH = f'{AIRFLOW_HOME}/scripts/sql/'  # development
-SEARCH_PATH = f'{AIRFLOW_HOME}/dags/211dashboard/scripts/sql/'  # production
+SEARCH_PATH = f'{AIRFLOW_HOME}/dags/efs/uw211dashboard/scripts/sql/'  # production
 
 args = {
     'owner': '211dashboard',
