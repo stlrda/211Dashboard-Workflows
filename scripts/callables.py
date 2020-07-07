@@ -1,3 +1,7 @@
+import sys
+
+sys.path.append('/usr/local/airflow/dags/efs/uw211dashboard')
+
 from scripts.config import Config
 from scripts.scraper import Scraper
 from scripts.database import Database
