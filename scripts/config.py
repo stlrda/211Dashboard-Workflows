@@ -6,7 +6,7 @@ import json
 class Config:
     """Project Configuration class."""
     # Database config
-    DATABASE_CONN = BaseHook.get_connection('postgres_default')
+    DATABASE_CONN = BaseHook.get_connection('redb_postgres')
     DATABASE_HOST = DATABASE_CONN.host
     DATABASE_USERNAME = DATABASE_CONN.login
     DATABASE_PASSWORD = DATABASE_CONN.password
@@ -14,7 +14,7 @@ class Config:
     DATABASE_NAME = DATABASE_CONN.schema
 
     # AWS S3 config
-    S3_CONN = BaseHook.get_connection('aws_s3')
+    S3_CONN = BaseHook.get_connection('uw211dashboard-workbucket')
     S3_BUCKET = S3_CONN.schema
     AWS_ACCESS_KEY_ID = S3_CONN.login
     AWS_SECRET_ACCESS_KEY = S3_CONN.password
