@@ -149,6 +149,7 @@ AS
 COMMENT ON VIEW uw211dashboard.public.cre_vu_bls_unemployment_map_2_zip IS
 'This view translates monthly unemployment stats by county to zip-code level.
  Warning - The method used for translation is a rough estimate.'
+;
 --
 --
 --==================================================================================================
@@ -177,3 +178,4 @@ AS
 COMMENT ON VIEW uw211dashboard.public.cre_vu_unemployment_clms_map_2_zip IS
 'This view translates weekly unemployment claims counts by county to zip-code level.
  Warning - The method used for translation is a very rough estimate.'
+;
