@@ -6,7 +6,9 @@ import json
 class Config:
     """Project Configuration class."""
     # Database config
-    DATABASE_CONN = BaseHook.get_connection('uw211dashboard_postgres')
+    # DATABASE_CONN = BaseHook.get_connection('uw211dashboard_postgres')
+    # Will need to be changed again once Config/DAGs are properly directed
+    DATABASE_CONN = BaseHook.get_connection('postgres_default') # Temporary, Effectively Does Nothing
     DATABASE_HOST = DATABASE_CONN.host
     DATABASE_USERNAME = DATABASE_CONN.login
     DATABASE_PASSWORD = DATABASE_CONN.password
