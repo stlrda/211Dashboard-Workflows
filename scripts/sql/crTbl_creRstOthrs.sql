@@ -101,8 +101,8 @@ CREATE TABLE
  new_deaths          INTEGER,
  death_avg           NUMERIC(12,6),
  case_fatality_rate  NUMERIC(12,6),
- created_tsp         TIMESTAMPTZ     NOT NULL DEFAULT now(),
- last_update_tsp     TIMESTAMPTZ     NOT NULL DEFAULT now(),
+ --created_tsp         TIMESTAMPTZ     NOT NULL DEFAULT now(),
+ --last_update_tsp     TIMESTAMPTZ     NOT NULL DEFAULT now(),
  PRIMARY KEY (data_source, report_date, state_nm, county_nm, geo_id, zip_cd)
 );
 
@@ -146,8 +146,8 @@ CREATE TABLE
  state_nm            VARCHAR(30),
  county_nm           VARCHAR(30),
  claims_cnt          INTEGER,      -- unemployment claims count.
- created_tsp         TIMESTAMPTZ     NOT NULL DEFAULT now(),
- last_update_tsp     TIMESTAMPTZ     NOT NULL DEFAULT now(),
+ --created_tsp         TIMESTAMPTZ     NOT NULL DEFAULT now(),
+ --last_update_tsp     TIMESTAMPTZ     NOT NULL DEFAULT now(),
  PRIMARY KEY (data_source, period_end_date, geo_id)
 )
 ;
@@ -196,8 +196,8 @@ CREATE TABLE
  employed          INTEGER,
  unemployed        INTEGER,
  unemployed_rate   NUMERIC(6,3),
- created_tsp       TIMESTAMPTZ     NOT NULL DEFAULT now(),
- last_update_tsp   TIMESTAMPTZ     NOT NULL DEFAULT now(),
+ --created_tsp       TIMESTAMPTZ     NOT NULL DEFAULT now(),
+ --last_update_tsp   TIMESTAMPTZ     NOT NULL DEFAULT now(),
  PRIMARY KEY (state_fips_cd, county_fips_cd, month_last_date)
 )
 ;
@@ -237,8 +237,8 @@ CREATE TABLE
           IF NOT EXISTS  uw211dashboard.public.lkup_211_category
 (two11_category_id   SERIAL       NOT NULL,
  two11_category_nm   VARCHAR(100) NOT NULL,
- created_tsp       TIMESTAMPTZ    NOT NULL DEFAULT now(),
- last_update_tsp   TIMESTAMPTZ    NOT NULL DEFAULT now(),
+ --created_tsp       TIMESTAMPTZ    NOT NULL DEFAULT now(),
+ --last_update_tsp   TIMESTAMPTZ    NOT NULL DEFAULT now(),
  PRIMARY KEY (two11_category_id)
 )
 ;
@@ -270,8 +270,8 @@ CREATE TABLE
 (two11_category_id       INTEGER      NOT NULL REFERENCES uw211dashboard.public.lkup_211_category (two11_category_id),
  two11_sub_category_id   SERIAL       NOT NULL,
  two11_sub_category_nm   VARCHAR(100) NOT NULL,
- created_tsp             TIMESTAMPTZ  NOT NULL DEFAULT now(),
- last_update_tsp         TIMESTAMPTZ  NOT NULL DEFAULT now(),
+ --created_tsp             TIMESTAMPTZ  NOT NULL DEFAULT now(),
+ --last_update_tsp         TIMESTAMPTZ  NOT NULL DEFAULT now(),
  PRIMARY KEY (two11_category_id, two11_sub_category_id)
 )
 ;
@@ -301,8 +301,8 @@ CREATE TABLE
  two11_category_id      INTEGER      REFERENCES uw211dashboard.public.lkup_211_category     (two11_category_id),
  two11_sub_category_id  INTEGER,
  call_counts            INTEGER,
- created_tsp            TIMESTAMPTZ     NOT NULL DEFAULT now(),
- last_update_tsp        TIMESTAMPTZ     NOT NULL DEFAULT now(),
+ --created_tsp            TIMESTAMPTZ     NOT NULL DEFAULT now(),
+ --last_update_tsp        TIMESTAMPTZ     NOT NULL DEFAULT now(),
  PRIMARY KEY (call_date, zip_cd, two11_category_id, two11_sub_category_id),
  FOREIGN KEY (two11_category_id, two11_sub_category_id)
   REFERENCES uw211dashboard.public.lkup_211_sub_category (two11_category_id, two11_sub_category_id)
