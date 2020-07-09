@@ -67,7 +67,7 @@ AS
          est_tot_pop,
          imu_score,
          rpl_themes_svi_ndx,
-         area_sq_mi,
+         area_sq_mi
          --created_tsp,
          --last_update_tsp
    FROM  cre_census_data_by_tract_yr2018
