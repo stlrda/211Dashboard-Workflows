@@ -39,8 +39,8 @@ CREATE TABLE
  unrestricted_ind   NUMERIC(1),    -- Apparently this is just 0 or 1       
  data_source        VARCHAR(30),
  notes              VARCHAR(2000),
- created_tsp        TIMESTAMPTZ     NOT NULL DEFAULT now(),
- last_update_tsp    TIMESTAMPTZ     NOT NULL DEFAULT now(),
+ --created_tsp        TIMESTAMPTZ     NOT NULL DEFAULT now(), -- Removed for DAG Testing
+ --last_update_tsp    TIMESTAMPTZ     NOT NULL DEFAULT now(), -- Removed for DAG Testing
  PRIMARY KEY (funding_id)
 );
 

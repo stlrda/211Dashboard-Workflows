@@ -63,8 +63,8 @@ CREATE TABLE
  imu_score                               NUMERIC(10,2),
  rpl_themes_svi_ndx                      NUMERIC(10,6),
  area_sq_mi                              NUMERIC(10,6),
- created_tsp                             TIMESTAMPTZ     NOT NULL DEFAULT now(),
- last_update_tsp                         TIMESTAMPTZ     NOT NULL DEFAULT now(),
+ --created_tsp                             TIMESTAMPTZ     NOT NULL DEFAULT now(), -- Removed for DAG Testing
+ --last_update_tsp                         TIMESTAMPTZ     NOT NULL DEFAULT now(), -- Removed for DAG Testing
  PRIMARY KEY (tract_cd)
 )
 ;

@@ -160,8 +160,8 @@ CREATE TABLE
  bus_ratio        NUMERIC(5,3),  -- Proportion of BUSiness    addresses with the ZIP-CODE in the COUNTY (represented by the GEO_ID).
  oth_ratio        NUMERIC(5,3),  -- Proportion of OTHer       addresses with the ZIP-CODE in the COUNTY (represented by the GEO_ID).
  tot_ratio        NUMERIC(5,3),  -- Proportion of TOTal       addresses with the ZIP-CODE in the COUNTY (represented by the GEO_ID).
- created_tsp      TIMESTAMPTZ     NOT NULL DEFAULT now(),
- last_update_tsp  TIMESTAMPTZ     NOT NULL DEFAULT now(),
+ --created_tsp      TIMESTAMPTZ     NOT NULL DEFAULT now(), -- Removed for DAG Testing
+ --last_update_tsp  TIMESTAMPTZ     NOT NULL DEFAULT now(), -- Removed for DAG Testing
  PRIMARY KEY (zip_cd, geo_id)
 );
 
@@ -235,8 +235,8 @@ CREATE TABLE
  bus_ratio        NUMERIC(5,3),  -- Proportion of all BUSiness    addresses within the COUNTY (GEO_ID) that are in the ZIP-CODE.
  oth_ratio        NUMERIC(5,3),  -- Proportion of all OTHer       addresses within the COUNTY (GEO_ID) that are in the ZIP-CODE.
  tot_ratio        NUMERIC(5,3),  -- Proportion of all             addresses within the COUNTY (GEO_ID) that are in the ZIP-CODE.
- created_tsp      TIMESTAMPTZ     NOT NULL DEFAULT now(),
- last_update_tsp  TIMESTAMPTZ     NOT NULL DEFAULT now(),
+ --created_tsp      TIMESTAMPTZ     NOT NULL DEFAULT now(), -- Removed for DAG Testing
+ --last_update_tsp  TIMESTAMPTZ     NOT NULL DEFAULT now(), -- Removed for DAG Testing
  PRIMARY KEY (geo_id, zip_cd)
 );
 
@@ -266,8 +266,8 @@ CREATE TABLE
  bus_ratio        NUMERIC(5,3),  -- Proportion of all BUSiness    addresses within the TRACT that are in the ZIP-CODE.
  oth_ratio        NUMERIC(5,3),  -- Proportion of all OTHer       addresses within the TRACT that are in the ZIP-CODE.
  tot_ratio        NUMERIC(5,3),  -- Proportion of all             addresses within the TRACT that are in the ZIP-CODE.
- created_tsp      TIMESTAMPTZ     NOT NULL DEFAULT now(),
- last_update_tsp  TIMESTAMPTZ     NOT NULL DEFAULT now(),
+ --created_tsp      TIMESTAMPTZ     NOT NULL DEFAULT now(), -- Removed for DAG Testing
+ --last_update_tsp  TIMESTAMPTZ     NOT NULL DEFAULT now(), -- Removed for DAG Testing
  PRIMARY KEY (tract_cd, zip_cd)
 );
 
