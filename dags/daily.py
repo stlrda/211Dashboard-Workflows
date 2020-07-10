@@ -31,7 +31,7 @@ Daily DAG
 
 AIRFLOW_HOME = os.environ['AIRFLOW_HOME']
 # SEARCH_PATH = f'{AIRFLOW_HOME}/scripts/sql/'  # development
-SEARCH_PATH = f'{AIRFLOW_HOME}/dags/efs/211dashboard/scripts/sql/'  # production
+SEARCH_PATH = f'{AIRFLOW_HOME}/dags/efs/uw211dashboard/scripts/sql/'  # production
 COVID_BASE_URL = 'https://raw.githubusercontent.com/slu-openGIS/covid_daily_viz/master/data'
 
 args = {
