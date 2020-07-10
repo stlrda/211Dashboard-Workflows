@@ -67,9 +67,9 @@ AS
          est_tot_pop,
          imu_score,
          rpl_themes_svi_ndx,
-         area_sq_mi,
-         created_tsp,
-         last_update_tsp
+         area_sq_mi
+         --created_tsp,
+         --last_update_tsp
    FROM  cre_census_data_by_tract_yr2018
    WHERE LEFT(tract_cd, 5) in (SELECT DISTINCT geo_id FROM lkup_areas_of_intr_geo_scope)
    -- KB added where statement to filter for "areas of interest" - 6/22/2020
@@ -140,9 +140,9 @@ AS
          est_tot_pop,
          imu_score,
          rpl_themes_svi_ndx,
-         area_sq_mi,
-         created_tsp,
-         last_update_tsp
+         area_sq_mi
+         --created_tsp,
+         --last_update_tsp
    FROM  cre_census_data_by_county_yr2018
    WHERE geo_id in (SELECT DISTINCT geo_id FROM lkup_areas_of_intr_geo_scope)
    -- KB added where statement to filter for "areas of interest" - 6/22/2020
