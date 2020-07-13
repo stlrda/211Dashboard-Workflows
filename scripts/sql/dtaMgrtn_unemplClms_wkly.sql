@@ -50,9 +50,9 @@ INSERT INTO cre_unemployment_clms
          g.state_nm,
          g.county_nm,
          u.claims_cnt
-   FROM  stg_mo_unemployment_clms   u,
-         lkup_vu_county_geoid       g,
-         lst_sccss_run              sr
+   FROM  stg_mo_unemployment_clms      u,
+         lkup_areas_of_intr_geo_scope  g,
+         lst_sccss_run                 sr
   WHERE  u.county              =  g.county_nm
     AND  g.state_nm            = 'Missouri'
     AND  u.week_ending_sat_dt >= sr.incr_data_ref_dt
