@@ -58,9 +58,9 @@ INSERT INTO cre_bls_unemployment_data
          u.employed,
          u.unemployed,
          u.unemployed_rate
-   FROM  stg_bls_unemployment_data_curr   u,
-         lkup_vu_county_geoid             g,
-         lst_sccss_run                    sr
+   FROM  stg_bls_unemployment_data_curr  u,
+         lkup_areas_of_intr_geo_scope    g,
+         lst_sccss_run                   sr
   WHERE  u.geo_id           = g.geo_id
     AND  u.month_last_date >= sr.incr_data_ref_dt
 )
