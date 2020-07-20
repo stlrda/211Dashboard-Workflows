@@ -15,6 +15,7 @@ Daily DAG
 1. Scrape COVID-19 data
     a. Data sourced from Chris Prener's github at
        "https://github.com/slu-openGIS/covid_daily_viz/tree/master/data"
+       Changed to https://github.com/slu-openGIS/MO_HEALTH_Covid_Tracking/tree/master/data on 7/20/20
 2. Eventually, "scrape" 211 data (waiting on United Way data...)
 3. Truncate staging tables
 4. Load COVID-19 data to staging tables
@@ -32,7 +33,7 @@ Daily DAG
 AIRFLOW_HOME = os.environ['AIRFLOW_HOME']
 # SEARCH_PATH = f'{AIRFLOW_HOME}/scripts/sql/'  # development
 SEARCH_PATH = f'{AIRFLOW_HOME}/dags/efs/uw211dashboard/scripts/sql/'  # production
-COVID_BASE_URL = 'https://raw.githubusercontent.com/slu-openGIS/covid_daily_viz/master/data'
+COVID_BASE_URL = 'https://raw.githubusercontent.com/slu-openGIS/MO_HEALTH_Covid_Tracking/master/data'
 
 args = {
     'owner': '211dashboard',
