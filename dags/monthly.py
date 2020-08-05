@@ -43,7 +43,8 @@ dag = DAG(
     dag_id='211dash_monthly',
     schedule_interval='@monthly',
     template_searchpath=SEARCH_PATH,
-    default_args=args
+    default_args=args,
+    catchup=False
 )
 
 ''' Define monthly airflow operators. '''

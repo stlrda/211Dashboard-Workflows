@@ -41,7 +41,8 @@ dag = DAG(
     dag_id='211dash_weekly',
     schedule_interval='@weekly',
     template_searchpath=SEARCH_PATH,
-    default_args=args
+    default_args=args,
+    catchup=False
 )
 
 ''' Define weekly airflow operators. '''

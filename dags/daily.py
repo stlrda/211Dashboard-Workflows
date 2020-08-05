@@ -50,7 +50,8 @@ dag = DAG(
     dag_id='211dash_daily',
     schedule_interval='00 01 * * *',  # runs at 1am CST
     template_searchpath=SEARCH_PATH,
-    default_args=args
+    default_args=args,
+    catchup=False
 )
 
 #####################################################################
